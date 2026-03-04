@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - NutriFood</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebAppRazor.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-navbar shadow-sm sticky-top">
+            <div class="container">
+                <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-page="/Index">
+                    <i class="fas fa-leaf me-2"></i> NutriFood
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                        aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Index">
+                                <i class="fas fa-home me-1"></i> Trang chủ
+                            </a>
+                        </li>
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Health/Index">
+                                    <i class="fas fa-heartbeat me-1"></i> Chỉ số sức khỏe
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Menu/Index">
+                                    <i class="fas fa-utensils me-1"></i> Thực đơn
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Reviews/Index">
+                                    <i class="fas fa-star me-1"></i> Đánh giá
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Progress/Index">
+                                    <i class="fas fa-chart-line me-1"></i> Tiến trình
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Notifications/Index">
+                                    <i class="fas fa-bell me-1"></i> Thông báo
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item me-2">
+                                <a class="btn btn-warning btn-sm mt-1" asp-page="/Subscription/Index">
+                                    <i class="fas fa-crown me-1"></i> Premium
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <span class="nav-link">
+                                    <i class="fas fa-user-circle me-1"></i> Xin chào, <strong>@(User.FindFirst("FullName")?.Value ?? User.Identity.Name)</strong>
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link btn-logout-nav" asp-page="/Account/Logout">
+                                    <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Account/Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link btn-register-nav" asp-page="/Account/Register">
+                                    <i class="fas fa-user-plus me-1"></i> Đăng ký
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3 mt-4">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="site-footer mt-5">
+        <div class="container">
+            <div class="row py-4">
+                <div class="col-md-4 mb-3">
+                    <h5 class="fw-bold"><i class="fas fa-leaf me-2"></i>NutriFood</h5>
+                    <p class="text-muted-light">Nền tảng thức ăn dinh dưỡng - Giúp bạn sống khỏe mạnh mỗi ngày.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5 class="fw-bold">Liên kết</h5>
+                    <ul class="list-unstyled">
+                        <li><a asp-page="/Index" class="footer-link"><i class="fas fa-angle-right me-1"></i> Trang chủ</a></li>
+                        <li><a asp-page="/Privacy" class="footer-link"><i class="fas fa-angle-right me-1"></i> Chính sách</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5 class="fw-bold">Liên hệ</h5>
+                    <ul class="list-unstyled text-muted-light">
+                        <li><i class="fas fa-envelope me-2"></i>contact@@nutrifood.vn</li>
+                        <li><i class="fas fa-phone me-2"></i>0123 456 789</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>TP. Hồ Chí Minh, Việt Nam</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="footer-divider" />
+            <div class="text-center pb-3">
+                <small>&copy; 2026 NutriFood - All rights reserved.</small>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

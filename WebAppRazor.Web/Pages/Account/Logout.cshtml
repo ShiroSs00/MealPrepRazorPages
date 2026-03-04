@@ -1,0 +1,22 @@
+@page
+@model WebAppRazor.Web.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Đăng xuất";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="auth-card card text-center">
+            <div class="auth-header">
+                <i class="fas fa-hand-peace"></i>
+                <h3 class="mb-0 fw-bold">Hẹn gặp lại!</h3>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Bạn đã đăng xuất thành công. Hẹn gặp lại bạn trên NutriFood!</p>
+                <a asp-page="/Account/Login" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập lại
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+@page
+@model WebAppRazor.Web.Pages.Reviews.CreateModel
+@{
+    ViewData["Title"] = "Đánh giá món ăn";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header-custom">
+                <h4 class="mb-0"><i class="fas fa-star me-2"></i>Đánh giá món ăn</h4>
+            </div>
+            <div class="card-body p-4">
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>@Model.ErrorMessage</div>
+                }
+
+                <form method="post">
+                    <input type="hidden" asp-for="MealItemId" />
+
+                    <div class="mb-4 text-center">
+                        <label class="form-label fw-bold d-block mb-3">Đánh giá của bạn</label>
+                        <div class="star-rating" id="starRating">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="fas fa-star fa-2x star-input @(i <= 5 ? "text-warning" : "text-muted")"
+                                   data-value="@i" style="cursor:pointer;"></i>
+                            }
+                        </div>
+                        <input type="hidden" asp-for="Rating" id="ratingInput" value="5" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Comment" class="form-label fw-bold">
+                            <i class="fas fa-comment me-1"></i> Nhận xét (tùy chọn)
+                        </label>
+                        <textarea asp-for="Comment" class="form-control" rows="4"
+                                  placeholder="Chia sẻ cảm nhận của bạn về món ăn..."></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>Gửi đánh giá
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a asp-page="/Reviews/Index" class="text-muted">
+                        <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách đánh giá
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.star-input').forEach(star => {
+            star.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                document.getElementById('ratingInput').value = value;
+                document.querySelectorAll('.star-input').forEach((s, index) => {
+                    s.classList.toggle('text-warning', index < value);
+                    s.classList.toggle('text-muted', index >= value);
+                });
+            });
+        });
+    </script>
+}

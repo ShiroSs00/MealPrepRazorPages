@@ -1,0 +1,145 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <!-- Logged in view -->
+    <div class="hero-section text-center">
+        <h1><i class="fas fa-seedling me-2"></i>Chào mừng trở lại, @(User.FindFirst("FullName")?.Value ?? User.Identity.Name)!</h1>
+        <p class="mb-4">Hãy cùng khám phá thế giới dinh dưỡng và xây dựng chế độ ăn lành mạnh cho bạn.</p>
+        <a asp-page="/Account/Logout" class="btn btn-hero-outline">
+            <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+        </a>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-sm-6">
+            <div class="card-feature">
+                <div class="feature-icon icon-green">
+                    <i class="fas fa-apple-alt"></i>
+                </div>
+                <h5 class="fw-bold">Thực đơn hôm nay</h5>
+                <p class="text-muted">Gợi ý bữa ăn cân bằng dinh dưỡng phù hợp với bạn.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card-feature">
+                <div class="feature-icon icon-orange">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h5 class="fw-bold">Theo dõi Calo</h5>
+                <p class="text-muted">Quản lý lượng calo nạp vào mỗi ngày một cách dễ dàng.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card-feature">
+                <div class="feature-icon icon-blue">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <h5 class="fw-bold">Công thức nấu ăn</h5>
+                <p class="text-muted">Khám phá hàng trăm công thức ăn uống bổ dưỡng.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card-feature">
+                <div class="feature-icon icon-purple">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <h5 class="fw-bold">Sức khỏe</h5>
+                <p class="text-muted">Lời khuyên dinh dưỡng từ chuyên gia hàng đầu.</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Guest view -->
+    <div class="hero-section text-center">
+        <h1><i class="fas fa-leaf me-2"></i>NutriFood - Thức ăn dinh dưỡng</h1>
+        <p class="mb-4">Nền tảng giúp bạn xây dựng chế độ ăn uống lành mạnh, cân bằng dinh dưỡng và sống khỏe mỗi ngày.</p>
+        <div>
+            <a asp-page="/Account/Login" class="btn btn-hero-primary me-2">
+                <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+            </a>
+            <a asp-page="/Account/Register" class="btn btn-hero-outline">
+                <i class="fas fa-user-plus me-1"></i> Đăng ký miễn phí
+            </a>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="text-center mb-4">
+        <h2 class="section-title">Tại sao chọn NutriFood?</h2>
+        <p class="section-subtitle">Chúng tôi cung cấp giải pháp dinh dưỡng toàn diện cho bạn</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-sm-6">
+            <div class="card-feature">
+                <div class="feature-icon icon-green">
+                    <i class="fas fa-carrot"></i>
+                </div>
+                <h5 class="fw-bold">Thực phẩm tươi sạch</h5>
+                <p class="text-muted">Thông tin chi tiết về giá trị dinh dưỡng của hàng ngàn thực phẩm.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card-feature">
+                <div class="feature-icon icon-orange">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <h5 class="fw-bold">Tính toán Calo</h5>
+                <p class="text-muted">Công cụ tính lượng calo và chất dinh dưỡng chính xác.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card-feature">
+                <div class="feature-icon icon-blue">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h5 class="fw-bold">Kiến thức dinh dưỡng</h5>
+                <p class="text-muted">Bài viết hữu ích về chế độ ăn uống và sức khỏe.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card-feature">
+                <div class="feature-icon icon-purple">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h5 class="fw-bold">Cộng đồng</h5>
+                <p class="text-muted">Kết nối với cộng đồng yêu thích ăn uống lành mạnh.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row text-center mb-5">
+        <div class="col-md-3 col-6">
+            <div class="stat-item">
+                <div class="stat-number">5000+</div>
+                <div class="stat-label">Công thức nấu ăn</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-item">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Người dùng</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-item">
+                <div class="stat-number">200+</div>
+                <div class="stat-label">Chuyên gia</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-item">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Chế độ ăn</div>
+            </div>
+        </div>
+    </div>
+}

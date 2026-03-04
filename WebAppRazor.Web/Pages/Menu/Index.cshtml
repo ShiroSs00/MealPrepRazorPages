@@ -1,0 +1,149 @@
+@page
+@model WebAppRazor.Web.Pages.Menu.IndexModel
+@{
+    ViewData["Title"] = "Thực đơn";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title mb-0"><i class="fas fa-utensils me-2"></i>Thực đơn của bạn</h2>
+    <div>
+        @if (!Model.IsPremium)
+        {
+            <a asp-page="/Subscription/Index" class="btn btn-warning me-2">
+                <i class="fas fa-crown me-1"></i> Nâng cấp Premium
+            </a>
+        }
+        else
+        {
+            <span class="badge bg-warning text-dark me-2 p-2"><i class="fas fa-crown me-1"></i> Premium</span>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>@Model.SuccessMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>@Model.ErrorMessage</div>
+}
+
+@if (Model.LatestProfile == null)
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Bạn cần <a asp-page="/Health/Index" class="alert-link">cập nhật chỉ số sức khỏe</a> trước khi tạo thực đơn.
+    </div>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-body text-center p-4">
+            <p class="mb-3">Mục tiêu calo hàng ngày: <strong class="text-success fs-4">@Model.LatestProfile.DailyCalorieTarget kcal</strong></p>
+            <form method="post" asp-page-handler="Generate">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-magic me-2"></i>AI Tạo thực đơn mới
+                </button>
+            </form>
+        </div>
+    </div>
+}
+
+@if (Model.MealPlans.Count > 0)
+{
+    @foreach (var plan in Model.MealPlans)
+    {
+        <div class="card mb-4">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-calendar-day me-2"></i>@plan.Title</h5>
+                    <small>@plan.PlanDate.ToString("dd/MM/yyyy") - Mục tiêu: @plan.TargetCalories kcal</small>
+                </div>
+                <form method="post" asp-page-handler="Delete">
+                    <input type="hidden" name="planId" value="@plan.Id" />
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Xóa thực đơn này?')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    @foreach (var item in plan.MealItems.OrderBy(i => i.MealType == "Breakfast" ? 0 : i.MealType == "Lunch" ? 1 : i.MealType == "Dinner" ? 2 : 3))
+                    {
+                        var mealIcon = item.MealType switch
+                        {
+                            "Breakfast" => "fa-sun",
+                            "Lunch" => "fa-cloud-sun",
+                            "Dinner" => "fa-moon",
+                            _ => "fa-cookie-bite"
+                        };
+                        var mealLabel = item.MealType switch
+                        {
+                            "Breakfast" => "Bữa sáng",
+                            "Lunch" => "Bữa trưa",
+                            "Dinner" => "Bữa tối",
+                            _ => "Bữa phụ"
+                        };
+
+                        <div class="col-md-6">
+                            <div class="meal-item-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold mb-0">
+                                        <i class="fas @mealIcon me-1 text-warning"></i> @mealLabel
+                                    </h6>
+                                    <span class="badge bg-success">@item.Calories kcal</span>
+                                </div>
+                                <h5 class="text-dark">@item.Name</h5>
+                                <p class="text-muted small mb-2">@item.Description</p>
+
+                                <div class="nutrition-badges mb-2">
+                                    <span class="badge bg-info">Protein: @item.Protein g</span>
+                                    <span class="badge bg-primary">Carbs: @item.Carbs g</span>
+                                    <span class="badge bg-warning text-dark">Fat: @item.Fat g</span>
+                                </div>
+
+                                @if (Model.IsPremium && !string.IsNullOrEmpty(item.Ingredients))
+                                {
+                                    <div class="premium-content mt-3">
+                                        <h6 class="fw-bold"><i class="fas fa-shopping-basket me-1"></i> Nguyên liệu:</h6>
+                                        <p class="small">@item.Ingredients</p>
+                                    </div>
+                                }
+                                @if (Model.IsPremium && !string.IsNullOrEmpty(item.CookingInstructions))
+                                {
+                                    <div class="premium-content">
+                                        <h6 class="fw-bold"><i class="fas fa-book-open me-1"></i> Cách nấu:</h6>
+                                        <p class="small" style="white-space: pre-line;">@item.CookingInstructions</p>
+                                    </div>
+                                }
+
+                                @if (!Model.IsPremium)
+                                {
+                                    <div class="text-center mt-2">
+                                        <a asp-page="/Subscription/Index" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-lock me-1"></i> Nâng cấp để xem chi tiết
+                                        </a>
+                                    </div>
+                                }
+
+                                <div class="mt-2">
+                                    <a asp-page="/Reviews/Create" asp-route-mealItemId="@item.Id" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-star me-1"></i> Đánh giá
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+        <p class="text-muted">Chưa có thực đơn nào. Hãy tạo thực đơn mới!</p>
+    </div>
+}

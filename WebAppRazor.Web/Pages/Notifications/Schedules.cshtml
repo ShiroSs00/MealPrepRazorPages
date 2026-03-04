@@ -1,0 +1,154 @@
+﻿@page
+@model WebAppRazor.Web.Pages.Notifications.SchedulesModel
+@{
+    ViewData["Title"] = "Quản lý lịch nhắc nhở";
+}
+
+<h2 class="section-title mb-4">
+    <i class="fas fa-clock me-2"></i>Quản lý lịch nhắc nhở
+</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Form tạo lịch nhắc mới -->
+<div class="card mb-4">
+    <div class="card-header-custom">
+        <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Tạo lịch nhắc mới</h5>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" asp-page-handler="Create">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Loại nhắc nhở</label>
+                    <select asp-for="ReminderType" class="form-select">
+                        <option value="Breakfast">🌅 Bữa sáng</option>
+                        <option value="Lunch">☀️ Bữa trưa</option>
+                        <option value="Dinner">🌙 Bữa tối</option>
+                        <option value="Shopping">🛒 Mua nguyên liệu</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Giờ nhắc</label>
+                    <input asp-for="ReminderTime" type="time" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Ngày bắt đầu</label>
+                    <input asp-for="StartDate" type="date" class="form-control"
+                           value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Ngày kết thúc <small class="text-muted">(tuỳ chọn)</small></label>
+                    <input asp-for="EndDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Lặp lại</label>
+                    <select asp-for="RepeatMode" class="form-select">
+                        <option value="Daily">Hằng ngày</option>
+                        <option value="Weekdays">Ngày trong tuần</option>
+                        <option value="Weekends">Cuối tuần</option>
+                        <option value="Once">Một lần</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-save"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Danh sách lịch nhắc -->
+<div class="card">
+    <div class="card-header-custom">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Lịch nhắc đã tạo</h5>
+    </div>
+    <div class="card-body p-4">
+        @if (!Model.Schedules.Any())
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                <p>Chưa có lịch nhắc nào. Hãy tạo lịch nhắc đầu tiên!</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Loại</th>
+                            <th>Giờ nhắc</th>
+                            <th>Bắt đầu</th>
+                            <th>Kết thúc</th>
+                            <th>Lặp lại</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var schedule in Model.Schedules)
+                        {
+                            var typeLabel = schedule.ReminderType switch
+                            {
+                                "Breakfast" => "🌅 Bữa sáng",
+                                "Lunch" => "☀️ Bữa trưa",
+                                "Dinner" => "🌙 Bữa tối",
+                                "Shopping" => "🛒 Mua nguyên liệu",
+                                _ => schedule.ReminderType
+                            };
+                            var repeatLabel = schedule.RepeatMode switch
+                            {
+                                "Daily" => "Hằng ngày",
+                                "Weekdays" => "Ngày trong tuần",
+                                "Weekends" => "Cuối tuần",
+                                "Once" => "Một lần",
+                                _ => schedule.RepeatMode
+                            };
+                            <tr class="@(!schedule.IsActive ? "text-muted" : "")">
+                                <td><strong>@typeLabel</strong></td>
+                                <td><span class="badge bg-primary fs-6">@schedule.ReminderTime.ToString("HH:mm")</span></td>
+                                <td>@schedule.StartDate.ToString("dd/MM/yyyy")</td>
+                                <td>@(schedule.EndDate?.ToString("dd/MM/yyyy") ?? "Không giới hạn")</td>
+                                <td>@repeatLabel</td>
+                                <td>
+                                    @if (schedule.IsActive)
+                                    {
+                                        <span class="badge bg-success">Đang bật</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Đã tắt</span>
+                                    }
+                                </td>
+                                <td>
+                                    <form method="post" asp-page-handler="Toggle" class="d-inline">
+                                        <input type="hidden" name="scheduleId" value="@schedule.Id" />
+                                        <button type="submit" class="btn btn-sm @(schedule.IsActive ? "btn-outline-warning" : "btn-outline-success")"
+                                                title="@(schedule.IsActive ? "Tắt" : "Bật")">
+                                            <i class="fas @(schedule.IsActive ? "fa-pause" : "fa-play")"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Delete" class="d-inline ms-1"
+                                          onsubmit="return confirm('Xóa lịch nhắc này?')">
+                                        <input type="hidden" name="scheduleId" value="@schedule.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

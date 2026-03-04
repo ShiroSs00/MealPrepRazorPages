@@ -1,0 +1,39 @@
+@page
+@model WebAppRazor.Web.Pages.Subscription.PaymentMethodModel
+@{
+    ViewData["Title"] = "Chọn phương thức thanh toán";
+}
+
+<h2 class="section-title text-center mb-4">
+    <i class="fas fa-wallet me-2"></i>Chọn phương thức thanh toán
+</h2>
+
+<div class="text-center mb-3">
+    <p class="mb-1">
+        <strong>Gói:</strong> Basic Premium - @Model.PlanTypeDisplay
+    </p>
+    <p class="mb-0">
+        <strong>Số tiền:</strong> @Model.AmountDisplay
+    </p>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5 class="mb-3">Phương thức thanh toán</h5>
+
+            <form method="post" asp-page-handler="Card" class="d-grid gap-2">
+                <input type="hidden" asp-for="PlanType" />
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-credit-card me-1"></i> Thanh toán bằng thẻ
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="col-12 text-center mt-3">
+        <a asp-page="/Subscription/Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại chọn gói
+        </a>
+    </div>
+</div>
+

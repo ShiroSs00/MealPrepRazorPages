@@ -1,0 +1,302 @@
+@page
+@model WebAppRazor.Web.Pages.Notifications.IndexModel
+@{
+    ViewData["Title"] = "Thông báo";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="section-title mb-0">
+        <i class="fas fa-bell me-2"></i>Thông báo
+        @if (Model.UnreadCount > 0)
+        {
+            <span class="badge bg-danger ms-2">@Model.UnreadCount mới</span>
+        }
+    </h2>
+    <div>
+        @if (Model.UnreadCount > 0)
+        {
+            <form method="post" asp-page-handler="MarkAllRead" class="d-inline">
+                <button type="submit" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-check-double me-1"></i> Đánh dấu tất cả đã đọc
+                </button>
+            </form>
+        }
+    </div>
+</div>
+
+<!-- Quick Reminders -->
+<div class="card mb-4">
+    <div class="card-header-custom">
+        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Tạo nhắc nhở nhanh</h5>
+    </div>
+    <div class="card-body p-4">
+        <p class="text-muted small mb-3">Chọn loại nhắc nhở để đặt lịch ngày và giờ cụ thể:</p>
+                <div class="row g-2">
+            <div class="col-auto">
+                <button type="button" class="btn btn-outline-warning"
+                        onclick="openMealReminderModal('Breakfast')">
+                    <i class="fas fa-sun me-1"></i> Nhắc bữa sáng
+                </button>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-outline-info"
+                        onclick="openMealReminderModal('Lunch')">
+                    <i class="fas fa-cloud-sun me-1"></i> Nhắc bữa trưa
+                </button>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-outline-primary"
+                        onclick="openMealReminderModal('Dinner')">
+                    <i class="fas fa-moon me-1"></i> Nhắc bữa tối
+                </button>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-outline-success"
+                        onclick="openMealReminderModal('Shopping')">
+                    <i class="fas fa-shopping-cart me-1"></i> Nhắc mua nguyên liệu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chọn ngày giờ nhắc bữa ăn -->
+<div class="modal fade" id="mealReminderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="ScheduleMealReminder">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-clock me-2"></i>
+                        Chọn thời gian nhắc
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="mealTypeInput" name="mealType" />
+                    <div class="mb-3">
+                        <label for="reminderTimeInput" class="form-label">Ngày giờ nhắc</label>
+                        <input type="datetime-local"
+                               class="form-control"
+                               id="reminderTimeInput"
+                               name="reminderTime"
+                               required />
+                        <div class="form-text">
+                            Hệ thống sẽ gửi thông báo đúng vào thời điểm bạn chọn.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Lưu nhắc nhở
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Notification List -->
+<div class="card">
+    <div class="card-body p-4">
+        @if (Model.AllNotifications.Count == 0)
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Chưa có thông báo nào.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var notification in Model.AllNotifications)
+            {
+                var iconClass = notification.Type switch
+                {
+                    "MealReminder" => "fa-utensils text-warning",
+                    "ShoppingReminder" => "fa-shopping-cart text-success",
+                    "ReviewReminder" => "fa-star text-info",
+                    "NewMenu" => "fa-magic text-primary",
+                    "Promotion" => "fa-gift text-danger",
+                    _ => "fa-info-circle text-secondary"
+                };
+
+                <div class="notification-item @(!notification.IsRead ? "unread" : "")">
+                    <div class="d-flex align-items-start">
+                        <div class="notification-icon me-3">
+                            <i class="fas @iconClass fa-lg"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="fw-bold mb-1">@notification.Title</h6>
+                                <small class="text-muted">@notification.CreatedAt.ToString("dd/MM HH:mm")</small>
+                            </div>
+                            <p class="text-muted mb-0 small">@notification.Message</p>
+                        </div>
+                        @if (!notification.IsRead)
+                        {
+                            <form method="post" asp-page-handler="MarkRead" class="ms-2">
+                                <input type="hidden" name="notificationId" value="@notification.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Đánh dấu đã đọc">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- Modal chọn ngày giờ nhắc nhở -->
+<div class="modal fade" id="reminderModal" tabindex="-1" aria-labelledby="reminderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="reminderModalLabel">
+                    <i class="fas fa-clock me-2"></i>Đặt lịch nhắc nhở
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="CreateScheduledReminder">
+                <div class="modal-body">
+                    <input type="hidden" id="modalReminderType" name="reminderType" />
+
+                    <div class="alert alert-info d-flex align-items-center py-2">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span>Đặt lịch cho: <strong id="modalReminderLabel"></strong></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-calendar me-1"></i> Ngày nhắc
+                        </label>
+                        <input type="date" name="reminderDate" class="form-control"
+                               id="modalReminderDate" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-clock me-1"></i> Giờ nhắc
+                        </label>
+                        <input type="time" name="reminderTime" class="form-control"
+                               id="modalReminderTime" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-redo me-1"></i> Lặp lại
+                        </label>
+                        <select name="repeatMode" class="form-select">
+                            <option value="Once">Một lần</option>
+                            <option value="Daily" selected>Hằng ngày</option>
+                            <option value="Weekdays">Các ngày trong tuần (T2–T6)</option>
+                            <option value="Weekends">Cuối tuần (T7–CN)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Hủy
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-bell me-1"></i> Tạo lịch nhắc
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        // Mở modal và điền thông tin loại nhắc nhở
+        function openReminderModal(type, label) {
+            document.getElementById('modalReminderType').value = type;
+            document.getElementById('modalReminderLabel').textContent = label;
+
+            // Set giờ mặc định theo loại
+            const defaultTimes = {
+                'Breakfast': '07:00',
+                'Lunch': '11:30',
+                'Dinner': '18:00',
+                'Shopping': '08:00'
+            };
+            document.getElementById('modalReminderTime').value = defaultTimes[type] || '08:00';
+
+            // Set ngày mặc định là hôm nay
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('modalReminderDate').value = today;
+            document.getElementById('modalReminderDate').min = today;
+
+            const modal = new bootstrap.Modal(document.getElementById('reminderModal'));
+            modal.show();
+        }
+
+        // SignalR
+        const userId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+
+        function pad2(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        function openMealReminderModal(mealType) {
+            const mealTypeInput = document.getElementById('mealTypeInput');
+            const timeInput = document.getElementById('reminderTimeInput');
+            if (!mealTypeInput || !timeInput) return;
+
+            mealTypeInput.value = mealType;
+
+            // Gợi ý thời gian mặc định: sau 5 phút tính từ hiện tại
+            const now = new Date();
+            now.setMinutes(now.getMinutes() + 5);
+            const yyyy = now.getFullYear();
+            const MM = pad2(now.getMonth() + 1);
+            const dd = pad2(now.getDate());
+            const hh = pad2(now.getHours());
+            const mm = pad2(now.getMinutes());
+            timeInput.value = `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+
+            const modalElement = document.getElementById('mealReminderModal');
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+        if (userId) {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("ReceiveNotification", function (title, message, type) {
+                showToast(title, message);
+                setTimeout(() => location.reload(), 2000);
+            });
+
+            connection.start().then(function () {
+                connection.invoke("JoinUserGroup", userId);
+            }).catch(function (err) {
+                console.error(err.toString());
+            });
+
+            function showToast(title, message) {
+                var toastHtml = `
+                    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+                        <div class="toast show" role="alert">
+                            <div class="toast-header bg-success text-white">
+                                <i class="fas fa-bell me-2"></i>
+                                <strong class="me-auto">${title}</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                            </div>
+                            <div class="toast-body">${message}</div>
+                        </div>
+                    </div>`;
+                document.body.insertAdjacentHTML('beforeend', toastHtml);
+                setTimeout(() => {
+                    document.querySelector('.toast')?.closest('.position-fixed')?.remove();
+                }, 5000);
+            }
+        }
+    </script>
+}

@@ -1,0 +1,71 @@
+@page
+@model WebAppRazor.Web.Pages.Subscription.PaymentModel
+@{
+    ViewData["Title"] = "Thanh toán bằng thẻ";
+}
+
+<h2 class="section-title text-center mb-4">
+    <i class="fas fa-credit-card me-2"></i>Thanh toán bằng thẻ
+</h2>
+
+<div class="text-center mb-3">
+    <p class="mb-1">
+        <strong>Gói:</strong> Basic Premium - @Model.PlanTypeDisplay
+    </p>
+    <p class="mb-0">
+        <strong>Số tiền:</strong> @Model.AmountDisplay
+    </p>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger text-center">
+        <i class="fas fa-exclamation-circle me-2"></i>@Model.ErrorMessage
+    </div>
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <form method="post">
+                <input type="hidden" asp-for="PlanType" />
+
+                <div class="mb-3">
+                    <label class="form-label">Ngân hàng</label>
+                    <input asp-for="BankName" class="form-control" autocomplete="off" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Số thẻ</label>
+                    <input asp-for="CardNumber" class="form-control" autocomplete="off" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tên chủ thẻ</label>
+                    <input asp-for="CardHolder" class="form-control" autocomplete="off" required />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Ngày phát hành (MM/YY)</label>
+                        <input asp-for="Expiry" class="form-control" autocomplete="off" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mật khẩu OTP</label>
+                        <input asp-for="Otp" class="form-control" autocomplete="off" required />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-lg w-100 mt-2">
+                    <i class="fas fa-lock me-1"></i> Thanh toán
+                </button>
+
+                <a asp-page="/Subscription/PaymentMethod" asp-route-planType="@Model.PlanType"
+                   class="btn btn-outline-secondary w-100 mt-2">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại chọn phương thức
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+

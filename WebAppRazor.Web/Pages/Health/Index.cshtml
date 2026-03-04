@@ -1,0 +1,149 @@
+@page
+@model WebAppRazor.Web.Pages.Health.IndexModel
+@{
+    ViewData["Title"] = "Chỉ số sức khỏe";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header-custom">
+                <h4 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Nhập thông tin sức khỏe</h4>
+            </div>
+            <div class="card-body p-4">
+                @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                {
+                    <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>@Model.SuccessMessage</div>
+                }
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>@Model.ErrorMessage</div>
+                }
+
+                <form method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="fas fa-birthday-cake me-1"></i> Tuổi</label>
+                            <input asp-for="Input.Age" class="form-control" type="number" min="10" max="120" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="fas fa-venus-mars me-1"></i> Giới tính</label>
+                            <select asp-for="Input.Gender" class="form-select">
+                                <option value="Male">Nam</option>
+                                <option value="Female">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="fas fa-ruler-vertical me-1"></i> Chiều cao (cm)</label>
+                            <input asp-for="Input.Height" class="form-control" type="number" step="0.1" min="100" max="250" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="fas fa-weight me-1"></i> Cân nặng (kg)</label>
+                            <input asp-for="Input.Weight" class="form-control" type="number" step="0.1" min="20" max="300" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="fas fa-running me-1"></i> Mức vận động</label>
+                            <select asp-for="Input.ActivityLevel" class="form-select">
+                                <option value="Sedentary">Ít vận động</option>
+                                <option value="LightlyActive">Vận động nhẹ</option>
+                                <option value="ModeratelyActive">Vận động vừa</option>
+                                <option value="VeryActive">Vận động nhiều</option>
+                                <option value="ExtraActive">Vận động rất nhiều</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="fas fa-bullseye me-1"></i> Mục tiêu</label>
+                            <select asp-for="Input.Goal" class="form-select">
+                                <option value="LoseWeight">Giảm cân</option>
+                                <option value="Maintain">Giữ cân</option>
+                                <option value="GainWeight">Tăng cân</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-calculator me-2"></i>Tính toán & Lưu chỉ số
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        @if (Model.Metrics != null)
+        {
+            <div class="card mb-4">
+                <div class="card-header-custom bg-gradient-info">
+                    <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Kết quả chỉ số</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="metric-card bg-bmi">
+                                <div class="metric-value">@Model.Metrics.BMI</div>
+                                <div class="metric-label">BMI</div>
+                                <div class="metric-desc">@Model.Metrics.BMICategory</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card bg-bmr">
+                                <div class="metric-value">@Model.Metrics.BMR</div>
+                                <div class="metric-label">BMR (kcal)</div>
+                                <div class="metric-desc">Trao đổi chất cơ bản</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card bg-tdee">
+                                <div class="metric-value">@Model.Metrics.TDEE</div>
+                                <div class="metric-label">TDEE (kcal)</div>
+                                <div class="metric-desc">Năng lượng tiêu thụ/ngày</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-card bg-target">
+                                <div class="metric-value">@Model.Metrics.DailyCalorieTarget</div>
+                                <div class="metric-label">Mục tiêu (kcal)</div>
+                                <div class="metric-desc">Calo/ngày khuyến nghị</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.ProfileHistory.Count > 1)
+        {
+            <div class="card">
+                <div class="card-header-custom">
+                    <h4 class="mb-0"><i class="fas fa-history me-2"></i>Lịch sử chỉ số</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Cân nặng</th>
+                                    <th>BMI</th>
+                                    <th>TDEE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var profile in Model.ProfileHistory.Take(10))
+                                {
+                                    <tr>
+                                        <td>@profile.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                        <td>@profile.Weight kg</td>
+                                        <td>@profile.BMI</td>
+                                        <td>@profile.TDEE kcal</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
