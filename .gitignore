@@ -1,43 +1,32 @@
-## .NET
+# Build
 bin/
 obj/
+
+# Visual Studio
+.vs/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 
-## SQLite
-*.db
-*.db-shm
-*.db-wal
-
-## IDE
-.vs/
-.vscode/
+# Rider / VS Code
 .idea/
-*.swp
+.vscode/
 
-## OS
-.DS_Store
-Thumbs.db
+# Logs
+*.log
 
-## Build results
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Ww][Ii][Nn]32/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-[Ll]ogs/
+# Environment files
+.env
+.env.*
 
-## NuGet
-*.nupkg
-**/[Pp]ackages/*
-!**/[Pp]ackages/build/
-*.nuget.props
-*.nuget.targets
+# App settings chứa key
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# User secrets
+secrets/
+
+# Publish
+publish/
