@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WebAppRazor.DAL.Data;
 using WebAppRazor.DAL.Models;
 
@@ -89,9 +89,9 @@ namespace WebAppRazor.DAL.Repositories
 
         public async Task<List<Notification>> GetDueNotificationsAsync()
         {
-            var nowUtc = DateTime.UtcNow;
+            var now = DateTime.Now;
             return await _context.Notifications
-                .Where(n => !n.IsSent && n.ScheduledAt != null && n.ScheduledAt <= nowUtc)
+                .Where(n => !n.IsSent && n.ScheduledAt != null && n.ScheduledAt <= now)
                 .ToListAsync();
         }
 
@@ -106,7 +106,7 @@ namespace WebAppRazor.DAL.Repositories
                 foreach (var n in notifications)
                 {
                     n.IsSent = true;
-                    n.CreatedAt = DateTime.UtcNow;
+                    // Không ghi đè CreatedAt - giữ nguyên giờ tạo gốc
                 }
 
                 await _context.SaveChangesAsync();
