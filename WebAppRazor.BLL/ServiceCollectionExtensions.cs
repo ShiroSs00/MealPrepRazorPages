@@ -89,6 +89,10 @@ public static class ServiceCollectionExtensions
             await ExecuteSqlAsync("ALTER TABLE [Users] ADD [SubscriptionExpiresAt] datetime2 NULL");
             await ExecuteSqlAsync("ALTER TABLE [Users] ADD [ReviewPoints] int NOT NULL DEFAULT 0");
 
+            // Add new columns to HealthProfiles table
+            await ExecuteSqlAsync("ALTER TABLE [HealthProfiles] ADD [Allergies] nvarchar(200) NULL");
+            await ExecuteSqlAsync("ALTER TABLE [HealthProfiles] ADD [FavoriteFoods] nvarchar(200) NULL");
+
             // Create HealthProfiles table
             await ExecuteSqlAsync(@"CREATE TABLE [HealthProfiles] (
                 [Id] int NOT NULL IDENTITY,
@@ -103,6 +107,8 @@ public static class ServiceCollectionExtensions
                 [BMR] float NOT NULL,
                 [TDEE] float NOT NULL,
                 [DailyCalorieTarget] float NOT NULL,
+                [Allergies] nvarchar(200) NULL,
+                [FavoriteFoods] nvarchar(200) NULL,
                 [CreatedAt] datetime2 NOT NULL,
                 CONSTRAINT [PK_HealthProfiles] PRIMARY KEY ([Id]),
                 CONSTRAINT [FK_HealthProfiles_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [Users] ([Id]) ON DELETE CASCADE
@@ -183,6 +189,10 @@ public static class ServiceCollectionExtensions
             // Add new columns to Notifications table for existing DB
             await ExecuteSqlAsync("ALTER TABLE [Notifications] ADD [ScheduledAt] datetime2 NULL");
             await ExecuteSqlAsync("ALTER TABLE [Notifications] ADD [IsSent] bit NOT NULL DEFAULT 1");
+
+            // Add new columns to MealItems table for existing DB
+            await ExecuteSqlAsync("ALTER TABLE [MealItems] ADD [Ingredients] nvarchar(max) NOT NULL DEFAULT ''");
+            await ExecuteSqlAsync("ALTER TABLE [MealItems] ADD [CookingInstructions] nvarchar(max) NOT NULL DEFAULT ''");
 
             await conn2.CloseAsync();
         }

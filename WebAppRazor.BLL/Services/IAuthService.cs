@@ -13,6 +13,9 @@ namespace WebAppRazor.BLL.Services
     {
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
+        public int UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
     }
 
     public interface IAuthService

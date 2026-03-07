@@ -30,7 +30,7 @@ namespace WebAppRazor.BLL.Services
             _logger = logger;
         }
 
-        public async Task<AIMenuResult> GenerateMenuWithAIAsync(double targetCalories, bool isPremium, string? goal = null, string? activityLevel = null)
+        public async Task<AIMenuResult> GenerateMenuWithAIAsync(double targetCalories, bool isPremium, string? goal = null, string? activityLevel = null, string? allergies = null, string? favoriteFoods = null)
         {
             if (string.IsNullOrWhiteSpace(_apiKey))
             {
@@ -40,7 +40,7 @@ namespace WebAppRazor.BLL.Services
 
             try
             {
-                var prompt = BuildPrompt(targetCalories, isPremium, goal, activityLevel);
+                var prompt = BuildPrompt(targetCalories, isPremium, goal, activityLevel, allergies, favoriteFoods);
                 var responseText = await CallOpenAIWithRetryAsync(prompt);
 
                 if (string.IsNullOrEmpty(responseText))
@@ -64,7 +64,7 @@ namespace WebAppRazor.BLL.Services
             }
         }
 
-        private static string BuildPrompt(double targetCalories, bool isPremium, string? goal, string? activityLevel)
+        private static string BuildPrompt(double targetCalories, bool isPremium, string? goal, string? activityLevel, string? allergies, string? favoriteFoods)
         {
             var goalText = goal switch
             {
@@ -83,62 +83,69 @@ namespace WebAppRazor.BLL.Services
                 _ => ""
             };
 
+            var allergyText = !string.IsNullOrWhiteSpace(allergies) ? $"Tránh các thực phẩm gây dị ứng: {allergies}." : "";
+            var favoriteText = !string.IsNullOrWhiteSpace(favoriteFoods) ? $"Ưu tiên các món ăn yêu thích hoặc nguyên liệu liên quan đến: {favoriteFoods}." : "";
+
             var premiumExtra = isPremium
                 ? "Bao gồm chi tiết nguyên liệu và hướng dẫn nấu ăn từng bước cho mỗi món."
                 : "Chỉ cần tên món, mô tả ngắn và thông tin dinh dưỡng.";
 
             return $@"Bạn là chuyên gia dinh dưỡng. Hãy tạo thực đơn 1 ngày cho người Việt Nam với mục tiêu {goalText}, mức vận động {activityText}.
+{allergyText}
+{favoriteText}
 Tổng calories mục tiêu: {targetCalories:F0} kcal/ngày.
 Phân bổ: Bữa sáng ~25%, Bữa trưa ~35%, Bữa tối ~30%, Bữa phụ ~10%.
 {premiumExtra}
 
 Trả về JSON theo format sau (KHÔNG có markdown, CHỈ JSON thuần):
-[
-  {{
-    ""mealType"": ""Breakfast"",
-    ""name"": ""Tên món"",
-    ""description"": ""Mô tả ngắn"",
-    ""calories"": 500,
-    ""protein"": 20.0,
-    ""carbs"": 60.0,
-    ""fat"": 15.0,
-    ""ingredients"": ""Nguyên liệu chi tiết"",
-    ""cookingInstructions"": ""Hướng dẫn nấu""
-  }},
-  {{
-    ""mealType"": ""Lunch"",
-    ""name"": ""Tên món"",
-    ""description"": ""Mô tả ngắn"",
-    ""calories"": 700,
-    ""protein"": 30.0,
-    ""carbs"": 80.0,
-    ""fat"": 20.0,
-    ""ingredients"": ""Nguyên liệu chi tiết"",
-    ""cookingInstructions"": ""Hướng dẫn nấu""
-  }},
-  {{
-    ""mealType"": ""Dinner"",
-    ""name"": ""Tên món"",
-    ""description"": ""Mô tả ngắn"",
-    ""calories"": 600,
-    ""protein"": 25.0,
-    ""carbs"": 70.0,
-    ""fat"": 18.0,
-    ""ingredients"": ""Nguyên liệu chi tiết"",
-    ""cookingInstructions"": ""Hướng dẫn nấu""
-  }},
-  {{
-    ""mealType"": ""Snack"",
-    ""name"": ""Tên món"",
-    ""description"": ""Mô tả ngắn"",
-    ""calories"": 200,
-    ""protein"": 8.0,
-    ""carbs"": 25.0,
-    ""fat"": 5.0,
-    ""ingredients"": ""Nguyên liệu chi tiết"",
-    ""cookingInstructions"": ""Hướng dẫn nấu""
-  }}
-]
+{{
+  ""meals"": [
+    {{
+      ""mealType"": ""Breakfast"",
+      ""name"": ""Tên món"",
+      ""description"": ""Mô tả ngắn"",
+      ""calories"": 500,
+      ""protein"": 20.0,
+      ""carbs"": 60.0,
+      ""fat"": 15.0,
+      ""ingredients"": ""Nguyên liệu chi tiết"",
+      ""cookingInstructions"": ""Hướng dẫn nấu""
+    }},
+    {{
+      ""mealType"": ""Lunch"",
+      ""name"": ""Tên món"",
+      ""description"": ""Mô tả ngắn"",
+      ""calories"": 700,
+      ""protein"": 30.0,
+      ""carbs"": 80.0,
+      ""fat"": 20.0,
+      ""ingredients"": ""Nguyên liệu chi tiết"",
+      ""cookingInstructions"": ""Hướng dẫn nấu""
+    }},
+    {{
+      ""mealType"": ""Dinner"",
+      ""name"": ""Tên món"",
+      ""description"": ""Mô tả ngắn"",
+      ""calories"": 600,
+      ""protein"": 25.0,
+      ""carbs"": 70.0,
+      ""fat"": 18.0,
+      ""ingredients"": ""Nguyên liệu chi tiết"",
+      ""cookingInstructions"": ""Hướng dẫn nấu""
+    }},
+    {{
+      ""mealType"": ""Snack"",
+      ""name"": ""Tên món"",
+      ""description"": ""Mô tả ngắn"",
+      ""calories"": 200,
+      ""protein"": 8.0,
+      ""carbs"": 25.0,
+      ""fat"": 5.0,
+      ""ingredients"": ""Nguyên liệu chi tiết"",
+      ""cookingInstructions"": ""Hướng dẫn nấu""
+    }}
+  ]
+}}
 
 Lưu ý: 
 - Các món ăn phải là món Việt Nam truyền thống hoặc phổ biến.

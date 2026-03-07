@@ -14,6 +14,8 @@ namespace WebAppRazor.BLL.DTOs
         public double BMR { get; set; }
         public double TDEE { get; set; }
         public double DailyCalorieTarget { get; set; }
+        public string? Allergies { get; set; }
+        public string? FavoriteFoods { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

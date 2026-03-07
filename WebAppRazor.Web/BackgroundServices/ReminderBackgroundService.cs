@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using WebAppRazor.BLL.Services;
 using WebAppRazor.Web.Hubs;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WebAppRazor.Web.BackgroundServices
 {

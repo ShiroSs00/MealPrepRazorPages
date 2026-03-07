@@ -74,7 +74,13 @@ namespace WebAppRazor.BLL.Services
                 };
             }
 
-            return new RegisterResult { Success = true };
+            return new RegisterResult 
+            { 
+                Success = true,
+                UserId = user.Id,
+                Username = user.Username,
+                FullName = user.FullName
+            };
         }
 
         private static string HashPassword(string password)
