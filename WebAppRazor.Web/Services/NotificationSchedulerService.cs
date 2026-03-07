@@ -1,4 +1,4 @@
-using WebAppRazor.BLL.Services;
+﻿using WebAppRazor.BLL.Services;
 using WebAppRazor.Web.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
@@ -45,10 +45,11 @@ namespace WebAppRazor.Web.Services
                 }
                 catch
                 {
-                    // Avoid crashing background service, just wait and retry
+                    // Tránh crash background service
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                // Poll mỗi 5 giây thay vì 30 giây → thông báo hiện gần như ngay lập tức
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
     }
