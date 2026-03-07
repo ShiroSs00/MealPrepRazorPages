@@ -17,12 +17,13 @@ namespace WebAppRazor.BLL.Services
         {
             var notification = new Notification
             {
-                UserId = userId,
-                Title = title,
-                Message = message,
-                Type = type,
-                IsRead = false,
-                CreatedAt = DateTime.Now
+                UserId    = userId,
+                Title     = title,
+                Message   = message,
+                Type      = type,
+                IsRead    = false,
+                CreatedAt = DateTime.Now,
+                IsSent    = true  // Thông báo thường - không cần scheduler push
             };
 
             return await _notificationRepository.CreateAsync(notification);
@@ -55,34 +56,36 @@ namespace WebAppRazor.BLL.Services
             return await _notificationRepository.MarkAllAsReadAsync(userId);
         }
 
-        public async Task CreateScheduledMealReminderAsync(int userId, string mealType, DateTime scheduledAtUtc)
+        public async Task CreateScheduledMealReminderAsync(int userId, string mealType, DateTime scheduledAt)
         {
-            string title = mealType switch
+            string mealLabel = mealType switch
             {
-                "Breakfast" => "Nhắc nhở bữa sáng",
-                "Lunch" => "Nhắc nhở bữa trưa",
-                "Dinner" => "Nhắc nhở bữa tối",
-                "Snack" => "Nhắc nhở bữa phụ",
-                "Shopping" => "Nhắc mua nguyên liệu",
-                _ => "Nhắc nhở bữa ăn"
+                "Breakfast" => "bữa sáng",
+                "Lunch"     => "bữa trưa",
+                "Dinner"    => "bữa tối",
+                "Snack"     => "bữa phụ",
+                "Shopping"  => "mua nguyên liệu",
+                _           => "bữa ăn"
             };
 
-            string message = mealType switch
-            {
-                "Shopping" => "Đã đến giờ mua nguyên liệu cho thực đơn của bạn!",
-                _ => $"Đã đến giờ {title.ToLower()}! Hãy kiểm tra thực đơn của bạn."
-            };
+            string title = mealType == "Shopping"
+                ? "Đã đặt lời nhắc mua nguyên liệu"
+                : $"Đã đặt lời nhắc cho {mealLabel}";
+
+            string message = mealType == "Shopping"
+                ? $"Bạn đã đặt lời nhắc mua nguyên liệu vào lúc {scheduledAt:HH:mm} ngày {scheduledAt:dd/MM/yyyy}."
+                : $"Bạn đã đặt lời nhắc cho {mealLabel} vào lúc {scheduledAt:HH:mm} ngày {scheduledAt:dd/MM/yyyy}.";
 
             var notification = new Notification
             {
-                UserId = userId,
-                Title = title,
-                Message = message,
-                Type = mealType == "Shopping" ? "ShoppingReminder" : "MealReminder",
-                IsRead = false,
-                CreatedAt = DateTime.Now,
-                ScheduledAt = scheduledAtUtc,
-                IsSent = false
+                UserId      = userId,
+                Title       = title,
+                Message     = message,
+                Type        = mealType == "Shopping" ? "ShoppingReminder" : "MealReminder",
+                IsRead      = false,
+                CreatedAt   = DateTime.Now,
+                ScheduledAt = scheduledAt,
+                IsSent      = true  // Xác nhận đặt lịch - đã "gửi" ngay, không để scheduler push lại
             };
 
             await _notificationRepository.CreateAsync(notification);
@@ -93,10 +96,10 @@ namespace WebAppRazor.BLL.Services
             string title = mealType switch
             {
                 "Breakfast" => "Nhắc nhở bữa sáng",
-                "Lunch" => "Nhắc nhở bữa trưa",
-                "Dinner" => "Nhắc nhở bữa tối",
-                "Snack" => "Nhắc nhở bữa phụ",
-                _ => "Nhắc nhở bữa ăn"
+                "Lunch"     => "Nhắc nhở bữa trưa",
+                "Dinner"    => "Nhắc nhở bữa tối",
+                "Snack"     => "Nhắc nhở bữa phụ",
+                _           => "Nhắc nhở bữa ăn"
             };
 
             await CreateNotificationAsync(userId, title,
@@ -143,15 +146,15 @@ namespace WebAppRazor.BLL.Services
         {
             return new NotificationDto
             {
-                Id = entity.Id,
-                UserId = entity.UserId,
-                Title = entity.Title,
-                Message = entity.Message,
-                Type = entity.Type,
-                IsRead = entity.IsRead,
-                CreatedAt = entity.CreatedAt,
+                Id          = entity.Id,
+                UserId      = entity.UserId,
+                Title       = entity.Title,
+                Message     = entity.Message,
+                Type        = entity.Type,
+                IsRead      = entity.IsRead,
+                CreatedAt   = entity.CreatedAt,
                 ScheduledAt = entity.ScheduledAt,
-                IsSent = entity.IsSent
+                IsSent      = entity.IsSent
             };
         }
     }

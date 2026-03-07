@@ -611,3 +611,135 @@ body {
     padding: 12px 16px;
     vertical-align: middle;
 }
+
+/* ===== Global Toast Notification ===== */
+#nutrifood-toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: 360px;
+    width: 100%;
+}
+
+.nutrifood-toast {
+    pointer-events: all;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(120%);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 300px;
+}
+
+.nutrifood-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.nutrifood-toast.hide {
+    opacity: 0;
+    transform: translateX(120%);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.nutrifood-toast-accent {
+    width: 6px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, var(--primary-green), var(--dark-green));
+}
+
+.nutrifood-toast-accent.shopping {
+    background: linear-gradient(180deg, var(--accent-orange), var(--accent-orange-dark));
+}
+
+.nutrifood-toast-body {
+    padding: 14px 16px;
+    flex: 1;
+    min-width: 0;
+}
+
+.nutrifood-toast-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.nutrifood-toast-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nutrifood-toast-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    font-size: 1rem;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.nutrifood-toast-close:hover {
+    color: #555;
+}
+
+.nutrifood-toast-message {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.nutrifood-toast-progress {
+    height: 3px;
+    background: var(--light-green);
+    border-radius: 0 0 0 14px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.nutrifood-toast-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-green), var(--dark-green));
+    width: 100%;
+    transform-origin: left;
+    animation: toastProgress 8s linear forwards;
+}
+
+.nutrifood-toast-progress-bar.shopping {
+    background: linear-gradient(90deg, var(--accent-orange), var(--accent-orange-dark));
+}
+
+@keyframes toastProgress {
+    from { width: 100%; }
+    to   { width: 0%; }
+}
+
+@media (max-width: 480px) {
+    #nutrifood-toast-container {
+        right: 10px;
+        left: 10px;
+        max-width: unset;
+    }
+
+    .nutrifood-toast {
+        min-width: unset;
+    }
+}

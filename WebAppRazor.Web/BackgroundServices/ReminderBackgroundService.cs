@@ -26,6 +26,11 @@ namespace WebAppRazor.Web.BackgroundServices
         {
             _logger.LogInformation("ReminderBackgroundService started.");
 
+            // Căn chỉnh lần đầu: đợi đến giây :00 gần nhất để poll đúng giờ
+            var now = DateTime.Now;
+            var delayToNextTick = TimeSpan.FromSeconds(10 - (now.Second % 10));
+            await Task.Delay(delayToNextTick, stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -37,8 +42,8 @@ namespace WebAppRazor.Web.BackgroundServices
                     _logger.LogError(ex, "Error processing reminders.");
                 }
 
-                // Kiểm tra mỗi 1 phút
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                // Poll mỗi 10 giây → thông báo đến trong vòng 10 giây kể từ giờ đã set
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
         }
 
@@ -63,18 +68,18 @@ namespace WebAppRazor.Web.BackgroundServices
                 // Kiểm tra chế độ lặp
                 if (!ShouldTriggerToday(schedule.RepeatMode, now.DayOfWeek)) continue;
 
-                // Kiểm tra đã đến giờ chưa (trong khoảng ±1 phút)
-                var diff = Math.Abs((currentTime - schedule.ReminderTime).TotalMinutes);
-                if (diff > 1) continue;
+                // Kiểm tra đã đến giờ chưa (window ±30 giây để không bỏ sót khi poll mỗi 10s)
+                var diffSeconds = Math.Abs((currentTime - schedule.ReminderTime).TotalSeconds);
+                if (diffSeconds > 30) continue;
 
-                // Tránh gửi trùng trong cùng 1 phút
+                // Tránh gửi trùng trong vòng 2 phút
                 if (schedule.LastTriggeredAt.HasValue &&
                     (now - schedule.LastTriggeredAt.Value).TotalMinutes < 2) continue;
 
-                // Gửi thông báo
+                // Push SignalR ngay lập tức
                 await TriggerReminderAsync(notificationService, schedule);
 
-                // Cập nhật thời gian gửi cuối qua BLL service
+                // Cập nhật thời gian gửi cuối
                 await reminderScheduleService.UpdateLastTriggeredAsync(schedule.Id, now);
 
                 _logger.LogInformation("Triggered reminder {Type} for user {UserId} at {Time}",
@@ -86,16 +91,17 @@ namespace WebAppRazor.Web.BackgroundServices
         {
             return repeatMode switch
             {
-                "Daily" => true,
+                "Daily"    => true,
                 "Weekdays" => dayOfWeek != DayOfWeek.Saturday && dayOfWeek != DayOfWeek.Sunday,
                 "Weekends" => dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday,
-                "Once" => true,
-                _ => true
+                "Once"     => true,
+                _          => true
             };
         }
 
         private async Task TriggerReminderAsync(INotificationService notificationService, BLL.DTOs.ReminderScheduleDto schedule)
         {
+            // Lưu notification vào DB
             switch (schedule.ReminderType)
             {
                 case "Breakfast":
@@ -109,17 +115,22 @@ namespace WebAppRazor.Web.BackgroundServices
                     break;
             }
 
-            // Push real-time qua SignalR
+            // Push SignalR ngay lập tức đến client
             var (title, message) = schedule.ReminderType switch
             {
                 "Breakfast" => ("🌅 Đến giờ ăn sáng!", "Hãy kiểm tra thực đơn bữa sáng của bạn."),
-                "Lunch" => ("☀️ Đến giờ ăn trưa!", "Hãy kiểm tra thực đơn bữa trưa của bạn."),
-                "Dinner" => ("🌙 Đến giờ ăn tối!", "Hãy kiểm tra thực đơn bữa tối của bạn."),
-                "Shopping" => ("🛒 Nhắc mua nguyên liệu!", "Hãy kiểm tra danh sách nguyên liệu cần mua."),
-                _ => ("🔔 Nhắc nhở!", "Bạn có một nhắc nhở mới.")
+                "Lunch"     => ("☀️ Đến giờ ăn trưa!", "Hãy kiểm tra thực đơn bữa trưa của bạn."),
+                "Dinner"    => ("🌙 Đến giờ ăn tối!", "Hãy kiểm tra thực đơn bữa tối của bạn."),
+                "Shopping"  => ("🛒 Nhắc mua nguyên liệu!", "Hãy kiểm tra danh sách nguyên liệu cần mua."),
+                _           => ("🔔 Nhắc nhở!", "Bạn có một nhắc nhở mới.")
             };
 
-            await NotificationHub.SendNotificationToUser(_hubContext, schedule.UserId, title, message, schedule.ReminderType + "Reminder");
+            await NotificationHub.SendNotificationToUser(
+                _hubContext,
+                schedule.UserId,
+                title,
+                message,
+                schedule.ReminderType + "Reminder");
         }
     }
 }

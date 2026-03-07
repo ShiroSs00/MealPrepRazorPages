@@ -1,10 +1,10 @@
-#  MealPrepService
+# 🍽️ MealPrepService
 
 Ứng dụng hỗ trợ người dùng quản lý sức khỏe và thực đơn cá nhân hóa bằng AI.
 
 ---
 
-##  Flows & Chức năng chính
+## 🚀 Flows & Chức năng chính
 
 ### Flow 1: Đăng ký + Tính toán chỉ số
 - Người dùng đăng ký, nhập thông tin cá nhân.
@@ -31,7 +31,7 @@
 ---
 
 ### Flow 3: Meal Review
-- Người dùng đánh giá món ăn, feedback cho AI để cải thiện menu.
+- Người dùng đánh giá món ăn, feedback sẽ nhận được số điểm thưởng và quy đổi ra món quà tặng tương đương với số điểm thưởng đấy.
 - **Mở rộng**:
   - Gamification: điểm thưởng khi review, ranking món ăn.
   - Social feature: chia sẻ thực đơn hoặc review với cộng đồng.
@@ -53,13 +53,22 @@
 
 ---
 
-##  Công nghệ đề xuất
-- **Backend**: ASP.NET Core + SignalR
-- **Frontend**: React / Angular
-- **Database**: SQL Server / PostgreSQL
-- **AI Menu Generation**: tích hợp mô hình AI (ví dụ: OpenAI API)
-- **Authentication**: JWT + Email/SMS OTP
-- **Deployment**: Docker + Kubernetes
+### Flow 6: Admin Dashboard
+- **Quản lý gói Premium**:
+  - Thêm/sửa/xóa gói (Free, Basic Premium, Advanced Premium…).
+  - Thay đổi giá gói theo tuần/tháng/năm.
+  - Cấu hình quyền lợi (menu AI, chi tiết dinh dưỡng, hướng dẫn nấu ăn…).
+- **SignalR Real-time Update**:
+  - Khi admin thay đổi giá gói, hệ thống push thông báo ngay đến tất cả client.
+  - Người dùng sẽ thấy banner hoặc popup: *“Giá gói Premium đã được cập nhật”*.
+- **Quản lý người dùng**:
+  - Xem danh sách user, trạng thái gói hiện tại.
+  - Thống kê số lượng đăng ký theo từng gói.
+- **Quản lý Feedback/Review**:
+  - Xem đánh giá món ăn từ Flow 3.
+  - Thống kê điểm trung bình, món ăn được yêu thích nhất.
 
 ---
+
+
 
