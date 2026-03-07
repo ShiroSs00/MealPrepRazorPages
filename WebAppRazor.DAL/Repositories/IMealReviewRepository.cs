@@ -9,6 +9,8 @@ namespace WebAppRazor.DAL.Repositories
         Task<List<MealReview>> GetAllRecentAsync(int count = 20);
         Task<MealReview?> GetByIdAsync(int id);
         Task<bool> CreateAsync(MealReview review);
+        Task<bool> UpdateAsync(MealReview review);
+        Task<bool> DeleteAsync(int id);
         Task<double> GetAverageRatingForMealItemAsync(int mealItemId);
     }
 }

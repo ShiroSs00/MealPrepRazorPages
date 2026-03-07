@@ -11,5 +11,6 @@ namespace WebAppRazor.DAL.Repositories
         Task<bool> CreateAsync(MealPlan plan);
         Task<bool> DeleteAsync(int id);
         Task<MealItem?> GetMealItemByIdAsync(int id);
+        Task<bool> UpdateMealItemAsync(MealItem item);
     }
 }

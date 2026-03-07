@@ -94,6 +94,43 @@ namespace WebAppRazor.BLL.Services
             return user?.ReviewPoints ?? 0;
         }
 
+        public async Task<ReviewResult> UpdateReviewAsync(int userId, int reviewId, int rating, string comment)
+        {
+            var review = await _reviewRepository.GetByIdAsync(reviewId);
+            if (review == null || review.UserId != userId)
+            {
+                return new ReviewResult { Success = false, ErrorMessage = "Đánh giá không tồn tại hoặc bạn không có quyền sửa." };
+            }
+
+            review.Rating = rating;
+            review.Comment = comment;
+            
+            var success = await _reviewRepository.UpdateAsync(review);
+            
+            MealReviewDto? reviewDto = null;
+            if (success)
+            {
+                reviewDto = MapToDto(review);
+                reviewDto.UserFullName = review.User?.FullName;
+                reviewDto.MealItemName = review.MealItem?.Name;
+            }
+
+            return new ReviewResult
+            {
+                Success = success,
+                ErrorMessage = success ? null : "Không thể cập nhật đánh giá.",
+                Review = reviewDto
+            };
+        }
+
+        public async Task<bool> DeleteReviewAsync(int userId, int reviewId)
+        {
+            var review = await _reviewRepository.GetByIdAsync(reviewId);
+            if (review == null || review.UserId != userId) return false;
+
+            return await _reviewRepository.DeleteAsync(reviewId);
+        }
+
         private static MealReviewDto MapToDto(MealReview entity)
         {
             return new MealReviewDto

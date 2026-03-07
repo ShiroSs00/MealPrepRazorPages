@@ -36,9 +36,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IReminderScheduleService, ReminderScheduleService>();
 
-        // Register OpenAI ChatGPT Service with HttpClient
-        services.AddHttpClient<IAIService, OpenAIService>();
-
         return services;
     }
 

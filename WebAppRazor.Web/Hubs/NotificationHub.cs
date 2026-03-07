@@ -40,5 +40,15 @@ namespace WebAppRazor.Web.Hubs
             // Also broadcast to global reviews group for the "Recent Reviews" section
             await hubContext.Clients.All.SendAsync("ReceiveNewGlobalReview", review);
         }
+
+        public static async Task BroadcastReviewUpdate(IHubContext<NotificationHub> hubContext, int mealItemId, object review)
+        {
+            await hubContext.Clients.All.SendAsync("ReceiveReviewUpdate", review);
+        }
+
+        public static async Task BroadcastReviewDelete(IHubContext<NotificationHub> hubContext, int reviewId)
+        {
+            await hubContext.Clients.All.SendAsync("ReceiveReviewDelete", reviewId);
+        }
     }
 }

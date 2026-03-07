@@ -1,0 +1,77 @@
+@page
+@model WebAppRazor.Web.Pages.Menu.CreateModel
+@{
+    ViewData["Title"] = "Tự tạo thực đơn";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title mb-0"><i class="fas fa-plus-circle me-2"></i>Tự tạo thực đơn riêng</h2>
+        <a asp-page="/Menu/Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <form method="post">
+                <div class="row g-4">
+                    <!-- Breakfast -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold"><i class="fas fa-sun text-warning me-1"></i> Bữa sáng</label>
+                        <select class="form-select" asp-for="SelectedBreakfastName">
+                            @foreach (var meal in Model.AvailableMeals.Where(m => m.MealType == "Breakfast"))
+                            {
+                                <option value="@meal.Name">@meal.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Lunch -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold"><i class="fas fa-cloud-sun text-primary me-1"></i> Bữa trưa</label>
+                        <select class="form-select" asp-for="SelectedLunchName">
+                            @foreach (var meal in Model.AvailableMeals.Where(m => m.MealType == "Lunch"))
+                            {
+                                <option value="@meal.Name">@meal.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Dinner -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold"><i class="fas fa-moon text-dark me-1"></i> Bữa tối</label>
+                        <select class="form-select" asp-for="SelectedDinnerName">
+                            @foreach (var meal in Model.AvailableMeals.Where(m => m.MealType == "Dinner"))
+                            {
+                                <option value="@meal.Name">@meal.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Snack -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold"><i class="fas fa-cookie-bite text-success me-1"></i> Bữa phụ</label>
+                        <select class="form-select" asp-for="SelectedSnackName">
+                            @foreach (var meal in Model.AvailableMeals.Where(m => m.MealType == "Snack"))
+                            {
+                                <option value="@meal.Name">@meal.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>Lưu thực đơn riêng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="alert alert-info border-0 shadow-sm">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Mẹo:</strong> Bạn có thể tự chọn các món ăn mình yêu thích từ thư viện thực phẩm lành mạnh của NutriFood. Hệ thống sẽ tự động tính toán dinh dưỡng phù hợp với mục tiêu của bạn.
+    </div>
+</div>

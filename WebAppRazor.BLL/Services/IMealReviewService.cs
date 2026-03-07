@@ -17,5 +17,7 @@ namespace WebAppRazor.BLL.Services
         Task<List<MealReviewDto>> GetReviewsByUserAsync(int userId);
         Task<List<MealReviewDto>> GetRecentReviewsAsync(int count = 20);
         Task<int> GetUserPointsAsync(int userId);
+        Task<ReviewResult> UpdateReviewAsync(int userId, int reviewId, int rating, string comment);
+        Task<bool> DeleteReviewAsync(int userId, int reviewId);
     }
 }

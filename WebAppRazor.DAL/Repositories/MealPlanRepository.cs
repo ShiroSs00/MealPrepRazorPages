@@ -77,5 +77,19 @@ namespace WebAppRazor.DAL.Repositories
         {
             return await _context.MealItems.FindAsync(id);
         }
+
+        public async Task<bool> UpdateMealItemAsync(MealItem item)
+        {
+            try
+            {
+                _context.MealItems.Update(item);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

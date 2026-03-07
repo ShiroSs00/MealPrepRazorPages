@@ -60,14 +60,22 @@ namespace WebAppRazor.Web.Pages.Menu
             }
 
             IsPremium = await _subscriptionService.IsPremiumAsync(userId);
-            var plan = await _mealPlanService.GenerateMenuAsync(userId, LatestProfile.DailyCalorieTarget, IsPremium);
+            try
+            {
+                var plan = await _mealPlanService.GenerateMenuAsync(userId, LatestProfile.DailyCalorieTarget, IsPremium);
 
-            // Send notification
-            await _notificationService.CreateNewMenuNotificationAsync(userId);
-            await NotificationHub.SendNotificationToUser(_hubContext, userId,
-                "Thực đơn mới!", "Thực đơn cá nhân hóa của bạn đã sẵn sàng!", "NewMenu");
+                // Send notification
+                await _notificationService.CreateNewMenuNotificationAsync(userId);
+                await NotificationHub.SendNotificationToUser(_hubContext, userId,
+                    "Thực đơn mới!", "Thực đơn cá nhân hóa của bạn đã sẵn sàng!", "NewMenu");
 
-            SuccessMessage = "Đã tạo thực đơn mới thành công!";
+                SuccessMessage = "Đã tạo thực đơn mới thành công!";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+
             MealPlans = await _mealPlanService.GetUserPlansAsync(userId);
             return Page();
         }
@@ -75,6 +83,20 @@ namespace WebAppRazor.Web.Pages.Menu
         public async Task<IActionResult> OnPostDeleteAsync(int planId)
         {
             await _mealPlanService.DeletePlanAsync(planId);
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostEditMealAsync(int mealItemId, MealItemDto updateDto)
+        {
+            var success = await _mealPlanService.UpdateMealItemAsync(mealItemId, updateDto);
+            if (success)
+            {
+                SuccessMessage = "Đã cập nhật món ăn thành công!";
+            }
+            else
+            {
+                ErrorMessage = "Không thể cập nhật món ăn.";
+            }
             return RedirectToPage();
         }
 

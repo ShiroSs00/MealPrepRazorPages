@@ -63,6 +63,36 @@ namespace WebAppRazor.DAL.Repositories
             }
         }
 
+        public async Task<bool> UpdateAsync(MealReview review)
+        {
+            try
+            {
+                _context.MealReviews.Update(review);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            try
+            {
+                var review = await _context.MealReviews.FindAsync(id);
+                if (review == null) return false;
+                _context.MealReviews.Remove(review);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<double> GetAverageRatingForMealItemAsync(int mealItemId)
         {
             var reviews = await _context.MealReviews

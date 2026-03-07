@@ -36,16 +36,90 @@
         Bạn cần <a asp-page="/Health/Index" class="alert-link">cập nhật chỉ số sức khỏe</a> trước khi tạo thực đơn.
     </div>
 }
+
+<!-- Edit Meal Modal -->
+<div class="modal fade" id="editMealModal" tabindex="-1" aria-labelledby="editMealModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editMealModalLabel"><i class="fas fa-edit me-2"></i>Chỉnh sửa món ăn</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="EditMeal">
+                <div class="modal-body">
+                    <input type="hidden" id="editMealId" name="mealItemId" />
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Tên món ăn</label>
+                            <input type="text" class="form-control" id="editMealName" name="updateDto.Name" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Mô tả</label>
+                            <textarea class="form-control" id="editMealDesc" name="updateDto.Description" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Calories (kcal)</label>
+                            <input type="number" class="form-control" id="editMealCal" name="updateDto.Calories" step="0.1" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Protein (g)</label>
+                            <input type="number" class="form-control" id="editMealProtein" name="updateDto.Protein" step="0.1" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Carbs (g)</label>
+                            <input type="number" class="form-control" id="editMealCarbs" name="updateDto.Carbs" step="0.1" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Fat (g)</label>
+                            <input type="number" class="form-control" id="editMealFat" name="updateDto.Fat" step="0.1" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Nguyên liệu</label>
+                            <textarea class="form-control" id="editMealIngredients" name="updateDto.Ingredients" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Cách nấu</label>
+                            <textarea class="form-control" id="editMealInstructions" name="updateDto.CookingInstructions" rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditModal(id, name, desc, cal, protein, carbs, fat, ingredients, instructions) {
+            document.getElementById('editMealId').value = id;
+            document.getElementById('editMealName').value = name;
+            document.getElementById('editMealDesc').value = desc;
+            document.getElementById('editMealCal').value = cal;
+            document.getElementById('editMealProtein').value = protein;
+            document.getElementById('editMealCarbs').value = carbs;
+            document.getElementById('editMealFat').value = fat;
+            document.getElementById('editMealIngredients').value = ingredients;
+            document.getElementById('editMealInstructions').value = instructions;
+        }
+    </script>
+}
 else
 {
     <div class="card mb-4">
         <div class="card-body text-center p-4">
             <p class="mb-3">Mục tiêu calo hàng ngày: <strong class="text-success fs-4">@Model.LatestProfile.DailyCalorieTarget kcal</strong></p>
-            <form method="post" asp-page-handler="Generate">
+            <form method="post" asp-page-handler="Generate" class="d-inline-block me-2">
                 <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-magic me-2"></i>AI Tạo thực đơn mới
+                    <i class="fas fa-magic me-2"></i>Tạo nhanh (Ngẫu nhiên)
                 </button>
             </form>
+            <a asp-page="/Menu/Create" class="btn btn-outline-success btn-lg">
+                <i class="fas fa-plus me-2"></i>Tự tạo thực đơn riêng
+            </a>
         </div>
     </div>
 }
@@ -127,10 +201,14 @@ else
                                     </div>
                                 }
 
-                                <div class="mt-2">
+                                <div class="mt-2 d-flex justify-content-between">
                                     <a asp-page="/Reviews/Create" asp-route-mealItemId="@item.Id" class="btn btn-sm btn-outline-success">
                                         <i class="fas fa-star me-1"></i> Đánh giá
                                     </a>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editMealModal" 
+                                            onclick="openEditModal('@item.Id', '@item.Name', '@item.Description', '@item.Calories', '@item.Protein', '@item.Carbs', '@item.Fat', '@item.Ingredients', '@item.CookingInstructions')">
+                                        <i class="fas fa-edit me-1"></i> Sửa
+                                    </button>
                                 </div>
                             </div>
                         </div>

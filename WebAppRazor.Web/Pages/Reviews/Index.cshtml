@@ -11,92 +11,179 @@
     </div>
 </div>
 
+    </div>
+</div>
+
+<!-- Edit Review Modal -->
+<div class="modal fade" id="editReviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sửa đánh giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="Update">
+                <div class="modal-body">
+                    <input type="hidden" id="editReviewId" name="reviewId" />
+                    <div class="mb-3 text-center">
+                        <label class="form-label d-block">Đánh giá của bạn</label>
+                        <div class="star-rating fs-3 text-warning">
+                            <i class="far fa-star cursor-pointer" data-rating="1"></i>
+                            <i class="far fa-star cursor-pointer" data-rating="2"></i>
+                            <i class="far fa-star cursor-pointer" data-rating="3"></i>
+                            <i class="far fa-star cursor-pointer" data-rating="4"></i>
+                            <i class="far fa-star cursor-pointer" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="editReviewRating" name="rating" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bình luận</label>
+                        <textarea class="form-control" id="editReviewComment" name="comment" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center pt-0">
+                <i class="fas fa-exclamation-triangle text-danger fs-1 mb-3"></i>
+                <p class="mb-0">Bạn có chắc chắn muốn xóa đánh giá này?</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pt-0">
+                <form method="post" asp-page-handler="Delete">
+                    <input type="hidden" id="deleteReviewId" name="reviewId" />
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger">Xóa ngay</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        // Use existing connection if available, otherwise connection will be managed by site.js
-        // Wait for connection to be established
+        // Modal functions
+        function openEditReviewModal(id, rating, comment) {
+            document.getElementById('editReviewId').value = id;
+            document.getElementById('editReviewComment').value = comment;
+            updateStarUI(rating);
+            new bootstrap.Modal(document.getElementById('editReviewModal')).show();
+        }
+
+        function confirmDeleteReview(id) {
+            document.getElementById('deleteReviewId').value = id;
+            new bootstrap.Modal(document.getElementById('deleteReviewModal')).show();
+        }
+
+        // Star rating UI logic
+        document.querySelectorAll('.star-rating i').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.getAttribute('data-rating');
+                updateStarUI(rating);
+            });
+        });
+
+        function updateStarUI(rating) {
+            document.getElementById('editReviewRating').value = rating;
+            document.querySelectorAll('.star-rating i').forEach(s => {
+                const sRating = s.getAttribute('data-rating');
+                if (sRating <= rating) {
+                    s.classList.remove('far');
+                    s.classList.add('fas');
+                } else {
+                    s.classList.remove('fas');
+                    s.classList.add('far');
+                }
+            });
+        }
+
+        // SignalR logic
         let retryCount = 0;
         const checkConnection = setInterval(() => {
             if (typeof signalR !== 'undefined' && window.connection) {
                 if (window.connection.state === signalR.HubConnectionState.Connected) {
                     clearInterval(checkConnection);
-                    setupReviewListener();
-                } else if (window.connection.state === signalR.HubConnectionState.Disconnected) {
-                    console.log("SignalR Connection is disconnected. Starting manually...");
-                    if (typeof startSignalR === 'function') startSignalR();
-                } else {
-                    console.log("SignalR Connection state: ", window.connection.state);
+                    setupReviewCRUDListeners();
                 }
-            } else {
-                console.log("SignalR not loaded yet...");
             }
-            
-            retryCount++;
-            if (retryCount > 20) { // Timeout after 10s
-                clearInterval(checkConnection);
-                console.error("SignalR Connection timeout.");
-            }
+            if (++retryCount > 20) clearInterval(checkConnection);
         }, 500);
 
-        function setupReviewListener() {
-            console.log("Setting up SignalR review listener...");
+        function setupReviewCRUDListeners() {
+            // New Review
             window.connection.on("ReceiveNewGlobalReview", (review) => {
-                console.log("Received new review via SignalR:", review);
                 const list = document.getElementById('communityReviewsList');
                 if (!list) return;
+                
+                const noMsg = document.getElementById('noCommunityReviews');
+                if (noMsg) noMsg.style.display = 'none';
 
-                // Hide "No reviews" message if it exists
-                const noReviews = document.getElementById('noCommunityReviews');
-                if (noReviews) noReviews.style.display = 'none';
-
-                // Create HTML for new review
                 const div = document.createElement('div');
                 div.className = 'col-md-6 animate__animated animate__fadeInDown';
-                
-                let stars = '';
-                for (let i = 1; i <= 5; i++) {
-                    stars += `<i class="fas fa-star ${i <= review.rating ? 'text-warning' : 'text-muted'}"></i>`;
-                }
-
-                div.innerHTML = `
-                    <div class="review-card border-success border-2">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <span class="badge bg-danger mb-2">MỚI!</span>
-                                <h6 class="fw-bold mb-0">${review.mealItemName || review.MealItemName || 'Món ăn'}</h6>
-                                <small class="text-muted">bởi ${review.userFullName || review.UserFullName || 'Ẩn danh'}</small>
-                            </div>
-                            <div class="stars">${stars}</div>
-                        </div>
-                        ${(review.comment || review.Comment) ? `<p class="text-muted small mt-2 mb-1">${review.comment || review.Comment}</p>` : ''}
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <small class="text-muted">${formatDate(review.createdAt || review.CreatedAt)}</small>
-                            <span class="badge bg-light text-success">+${review.pointsEarned || review.PointsEarned || 0}đ</span>
-                        </div>
-                    </div>
-                `;
-
-                // Add to top of list
+                div.id = `global-review-${review.id}`;
+                div.innerHTML = createReviewCardHTML(review, true);
                 list.insertBefore(div, list.firstChild);
-                
-                // Show a toast as well
-                if (typeof showNotification === 'function') {
-                    showNotification("Đánh giá mới!", `${review.userFullName} vừa đánh giá món ${review.mealItemName}`, "Promotion");
-                }
+            });
 
-                // Remove last item if too many
-                if (list.children.length > 20) {
-                    list.removeChild(list.lastChild);
+            // Update Review
+            window.connection.on("ReceiveReviewUpdate", (review) => {
+                const card = document.getElementById(`global-review-${review.id}`);
+                if (card) {
+                    card.innerHTML = createReviewCardHTML(review, true);
+                    card.classList.add('animate__animated', 'animate__pulse');
+                    setTimeout(() => card.classList.remove('animate__pulse'), 1000);
+                }
+            });
+
+            // Delete Review
+            window.connection.on("ReceiveReviewDelete", (reviewId) => {
+                const card = document.getElementById(`global-review-${reviewId}`);
+                if (card) {
+                    card.classList.add('animate__animated', 'animate__fadeOut');
+                    setTimeout(() => card.remove(), 1000);
                 }
             });
         }
 
+        function createReviewCardHTML(review, isNew) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="fas fa-star ${i <= review.rating ? 'text-warning' : 'text-muted'}"></i>`;
+            }
+            return `
+                <div class="review-card ${isNew ? 'border-success border-2' : ''}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            ${isNew ? '<span class="badge bg-danger mb-2">MỚI!</span>' : ''}
+                            <h6 class="fw-bold mb-0">${review.mealItemName || 'Món ăn'}</h6>
+                            <small class="text-muted">bởi ${review.userFullName || 'Ẩn danh'}</small>
+                        </div>
+                        <div class="stars">${stars}</div>
+                    </div>
+                    <p class="text-muted small mt-2 mb-1">${review.comment || ''}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <small class="text-muted">${formatDate(review.createdAt)}</small>
+                        <span class="badge bg-light text-success">+${review.pointsEarned || 0}đ</span>
+                    </div>
+                </div>
+            `;
+        }
+
         function formatDate(dateStr) {
             const date = new Date(dateStr);
-            return date.toLocaleString('vi-VN', { 
-                day: '2-digit', month: '2-digit', year: 'numeric', 
-                hour: '2-digit', minute: '2-digit' 
-            });
+            return date.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
     </script>
 }
@@ -107,37 +194,60 @@
         <h5 class="mb-0"><i class="fas fa-user me-2"></i>Đánh giá của tôi (@Model.MyReviews.Count)</h5>
     </div>
     <div class="card-body p-4">
-        @if (Model.MyReviews.Count == 0)
+        @if (Model.SuccessMessage != null)
         {
-            <p class="text-muted text-center py-3">Bạn chưa đánh giá món ăn nào. Hãy thử đánh giá từ thực đơn!</p>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i> @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         }
-        else
+        @if (Model.ErrorMessage != null)
         {
-            <div class="row g-3">
-                @foreach (var review in Model.MyReviews)
-                {
-                    <div class="col-md-6">
-                        <div class="review-card">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h6 class="fw-bold">@(review.MealItemName ?? "Món ăn")</h6>
-                                <span class="badge bg-success">+@review.PointsEarned điểm</span>
-                            </div>
-                            <div class="stars mb-2">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div id="userReviewsList" class="list-group list-group-flush mb-4">
+            @if (Model.MyReviews.Count == 0)
+            {
+                <div class="text-center py-4 text-muted border rounded bg-light">
+                    <p class="mb-0">Bạn chưa đánh giá món ăn nào. Hãy thử đánh giá từ thực đơn!</p>
+                </div>
+            }
+            @foreach (var review in Model.MyReviews)
+            {
+                <div class="list-group-item px-0 py-3" id="review-@review.Id">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="fw-bold mb-1">@review.MealItemName</h6>
+                            <div class="stars mb-1">
                                 @for (int i = 1; i <= 5; i++)
                                 {
                                     <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-muted")"></i>
                                 }
                             </div>
-                            @if (!string.IsNullOrEmpty(review.Comment))
-                            {
-                                <p class="text-muted small mb-1">@review.Comment</p>
-                            }
+                            <p class="text-muted small mb-1">@review.Comment</p>
                             <small class="text-muted">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
                         </div>
+                        <div class="text-end">
+                            <span class="badge bg-success mb-2">+@review.PointsEarned điểm</span>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1" 
+                                        onclick="openEditReviewModal('@review.Id', '@review.Rating', '@review.Comment')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="confirmDeleteReview('@review.Id')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                }
-            </div>
-        }
+                </div>
+            }
+        </div>
     </div>
 </div>
 
