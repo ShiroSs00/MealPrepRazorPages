@@ -95,6 +95,9 @@
         </nav>
     </header>
 
+    @* Toast container toàn cục - hiển thị trên mọi trang *@
+    <div id="nutrifood-toast-container"></div>
+
     <div class="container">
         <main role="main" class="pb-3 mt-4">
             @RenderBody()
@@ -133,7 +136,110 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <script>
+            (function () {
+                const userId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+                if (!userId) return;
+
+                function showNutrifoodToast(title, message, type) {
+                    const container = document.getElementById('nutrifood-toast-container');
+                    if (!container) return;
+
+                    const isShopping = type && type.toLowerCase().includes('shopping');
+
+                    const iconMap = {
+                        'MealReminder':     '🍽️',
+                        'ShoppingReminder': '🛒',
+                        'ReviewReminder':   '⭐',
+                        'NewMenu':          '✨',
+                        'Promotion':        '🎁',
+                        'System':           '🔔'
+                    };
+                    const icon = iconMap[type] || '🔔';
+
+                    const toast = document.createElement('div');
+                    toast.className = 'nutrifood-toast';
+                    toast.innerHTML = `
+                        <div class="nutrifood-toast-accent ${isShopping ? 'shopping' : ''}"></div>
+                        <div class="nutrifood-toast-body">
+                            <div class="nutrifood-toast-header">
+                                <span class="nutrifood-toast-title">
+                                    <span>${icon}</span>
+                                    <span>${escapeHtml(title)}</span>
+                                </span>
+                                <button class="nutrifood-toast-close" aria-label="Đóng">&#x2715;</button>
+                            </div>
+                            <div class="nutrifood-toast-message">${escapeHtml(message)}</div>
+                            <div class="nutrifood-toast-progress">
+                                <div class="nutrifood-toast-progress-bar ${isShopping ? 'shopping' : ''}"></div>
+                            </div>
+                        </div>
+                    `;
+
+                    container.appendChild(toast);
+
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => toast.classList.add('show'));
+                    });
+
+                    toast.querySelector('.nutrifood-toast-close').addEventListener('click', () => dismissToast(toast));
+
+                    const autoClose = setTimeout(() => dismissToast(toast), 8000);
+
+                    toast.addEventListener('mouseenter', () => {
+                        clearTimeout(autoClose);
+                        const bar = toast.querySelector('.nutrifood-toast-progress-bar');
+                        if (bar) bar.style.animationPlayState = 'paused';
+                    });
+                    toast.addEventListener('mouseleave', () => {
+                        const bar = toast.querySelector('.nutrifood-toast-progress-bar');
+                        if (bar) bar.style.animationPlayState = 'running';
+                        setTimeout(() => dismissToast(toast), 3000);
+                    });
+                }
+
+                function dismissToast(toast) {
+                    if (!toast || toast.classList.contains('hide')) return;
+                    toast.classList.remove('show');
+                    toast.classList.add('hide');
+                    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+                }
+
+                function escapeHtml(text) {
+                    const div = document.createElement('div');
+                    div.appendChild(document.createTextNode(text));
+                    return div.innerHTML;
+                }
+
+                // Expose để các trang con có thể gọi nếu cần
+                window.showNutrifoodToast = showNutrifoodToast;
+
+                // Kết nối SignalR toàn cục
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl('/notificationHub')
+                    .withAutomaticReconnect([0, 2000, 5000, 10000])
+                    .build();
+
+                connection.on('ReceiveNotification', function (title, message, type) {
+                    showNutrifoodToast(title, message, type);
+                });
+
+                connection.start()
+                    .then(() => connection.invoke('JoinUserGroup', userId))
+                    .catch(err => console.warn('[NutriFood] SignalR connection failed:', err));
+
+                connection.onreconnected(() => connection.invoke('JoinUserGroup', userId));
+
+                // Expose connection để trang con không cần tạo lại
+                window.nutrifoodSignalR = connection;
+            })();
+        </script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

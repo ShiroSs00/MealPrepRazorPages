@@ -46,19 +46,14 @@ namespace WebAppRazor.Web.Pages.Notifications
         {
             var userId = GetUserId();
 
-            // reminderTime là giờ local từ người dùng, convert sang UTC để lưu
-            var localTime = DateTime.SpecifyKind(reminderTime, DateTimeKind.Local);
-            var utc = localTime.ToUniversalTime();
+            // Dùng giờ local trực tiếp (Vietnam UTC+7), không convert sang UTC
+            await _notificationService.CreateScheduledMealReminderAsync(userId, mealType, reminderTime);
 
-            await _notificationService.CreateScheduledMealReminderAsync(userId, mealType, utc);
-
-            // FIX: Use TimeOnly.FromDateTime to extract TimeOnly from DateTime
             var startDate = DateOnly.FromDateTime(reminderTime);
             var time = TimeOnly.FromDateTime(reminderTime);
 
-            // Define reminderType and repeatMode based on mealType (or use default values)
-            var reminderType = mealType; // or set to a specific string if required
-            var repeatMode = "Daily"; // or another appropriate default
+            var reminderType = mealType;
+            var repeatMode = "Daily";
 
             await _reminderScheduleService.CreateScheduleAsync(
                 userId, reminderType, time, startDate, endDate: null, repeatMode);
