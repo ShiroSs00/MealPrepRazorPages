@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WebAppRazor.BLL.Services;
@@ -72,8 +75,28 @@ namespace WebAppRazor.Web.Pages.Account
                 return Page();
             }
 
-            TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập.";
-            return RedirectToPage("/Account/Login");
-        }
+            // Automatic login after registration
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, result.UserId.ToString()),
+                new Claim(ClaimTypes.Name, result.Username),
+                new Claim("FullName", result.FullName)
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            TempData["SuccessMessage"] = "Đăng ký thành công! Chào mừng bạn đến với NutriFood.";
+             return RedirectToPage("/Onboarding");
+         }
     }
 }

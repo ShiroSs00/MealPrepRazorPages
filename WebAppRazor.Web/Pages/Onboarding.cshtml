@@ -1,0 +1,91 @@
+@page
+@model WebAppRazor.Web.Pages.OnboardingModel
+@{
+    ViewData["Title"] = "Chào mừng đến với NutriFood";
+}
+
+<div class="onboarding-container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 fw-bold mb-4 text-success">Chào mừng @User.Identity?.Name!</h1>
+            <p class="lead mb-5">NutriFood là ứng dụng hỗ trợ bạn quản lý sức khỏe và thực đơn cá nhân hóa bằng AI. Hãy cùng khám phá các tính năng chính:</p>
+            
+            <div class="row g-4 text-start mb-5">
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-success text-white rounded-circle p-3 me-3">
+                                    <i class="fas fa-calculator fa-fw"></i>
+                                </div>
+                                <h5 class="card-title mb-0 fw-bold">Tính toán chỉ số sức khỏe</h5>
+                            </div>
+                            <p class="card-text text-muted">Chúng tôi tự động tính toán BMI, BMR, TDEE dựa trên thông tin cá nhân của bạn để đưa ra mục tiêu calories chính xác.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary text-white rounded-circle p-3 me-3">
+                                    <i class="fas fa-robot fa-fw"></i>
+                                </div>
+                                <h5 class="card-title mb-0 fw-bold">Thực đơn AI cá nhân hóa</h5>
+                            </div>
+                            <p class="card-text text-muted">AI sẽ thiết kế thực đơn hàng ngày phù hợp với mục tiêu của bạn. Gói Premium sẽ cung cấp thêm công thức nấu ăn chi tiết.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-warning text-white rounded-circle p-3 me-3">
+                                    <i class="fas fa-chart-line fa-fw"></i>
+                                </div>
+                                <h5 class="card-title mb-0 fw-bold">Theo dõi tiến trình</h5>
+                            </div>
+                            <p class="card-text text-muted">Ghi nhận cân nặng hàng ngày và theo dõi sự thay đổi qua biểu đồ trực quan để luôn giữ vững động lực.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-info text-white rounded-circle p-3 me-3">
+                                    <i class="fas fa-bell fa-fw"></i>
+                                </div>
+                                <h5 class="card-title mb-0 fw-bold">Nhắc nhở thông minh</h5>
+                            </div>
+                            <p class="card-text text-muted">Nhận thông báo real-time về giờ ăn, mua sắm nguyên liệu và nhắc nhở đánh giá món ăn để cải thiện chất lượng AI.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a asp-page="/Health/Index" class="btn btn-success btn-lg px-5 gap-3">Bắt đầu ngay</a>
+                <a asp-page="/Index" class="btn btn-outline-secondary btn-lg px-5">Bỏ qua</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .onboarding-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+    }
+    .bg-success { background-color: #2d8a4e !important; }
+    .text-success { color: #2d8a4e !important; }
+    .btn-success { background-color: #2d8a4e; border-color: #2d8a4e; }
+    .btn-success:hover { background-color: #246e3e; border-color: #246e3e; }
+</style>

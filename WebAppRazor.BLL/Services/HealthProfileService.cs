@@ -68,7 +68,7 @@ namespace WebAppRazor.BLL.Services
             };
         }
 
-        public async Task<HealthProfileResult> SaveProfileAsync(int userId, int age, string gender, double heightCm, double weightKg, string activityLevel, string goal)
+        public async Task<HealthProfileResult> SaveProfileAsync(int userId, int age, string gender, double heightCm, double weightKg, string activityLevel, string goal, string? allergies = null, string? favoriteFoods = null)
         {
             var metrics = CalculateMetrics(age, gender, heightCm, weightKg, activityLevel, goal);
 
@@ -85,6 +85,8 @@ namespace WebAppRazor.BLL.Services
                 BMR = metrics.BMR,
                 TDEE = metrics.TDEE,
                 DailyCalorieTarget = metrics.DailyCalorieTarget,
+                Allergies = allergies,
+                FavoriteFoods = favoriteFoods,
                 CreatedAt = DateTime.Now
             };
 
@@ -126,6 +128,8 @@ namespace WebAppRazor.BLL.Services
                 BMR = entity.BMR,
                 TDEE = entity.TDEE,
                 DailyCalorieTarget = entity.DailyCalorieTarget,
+                Allergies = entity.Allergies,
+                FavoriteFoods = entity.FavoriteFoods,
                 CreatedAt = entity.CreatedAt
             };
         }

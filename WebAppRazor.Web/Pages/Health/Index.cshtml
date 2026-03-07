@@ -59,6 +59,14 @@
                                 <option value="GainWeight">Tăng cân</option>
                             </select>
                         </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold"><i class="fas fa-exclamation-triangle me-1 text-danger"></i> Dị ứng thực phẩm</label>
+                            <input asp-for="Input.Allergies" class="form-control" placeholder="Ví dụ: Hải sản, đậu phộng, sữa..." />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold"><i class="fas fa-heart me-1 text-danger"></i> Món ăn yêu thích</label>
+                            <input asp-for="Input.FavoriteFoods" class="form-control" placeholder="Ví dụ: Cơm tấm, phở bò, gà rán..." />
+                        </div>
                     </div>
                     <div class="d-grid mt-4">
                         <button type="submit" class="btn btn-primary btn-lg">

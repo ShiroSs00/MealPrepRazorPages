@@ -80,7 +80,7 @@ namespace WebAppRazor.BLL.Services
                 Message = message,
                 Type = mealType == "Shopping" ? "ShoppingReminder" : "MealReminder",
                 IsRead = false,
-                CreatedAt = scheduledAtUtc,
+                CreatedAt = DateTime.Now,
                 ScheduledAt = scheduledAtUtc,
                 IsSent = false
             };

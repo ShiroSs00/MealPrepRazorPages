@@ -21,7 +21,7 @@ namespace WebAppRazor.BLL.Services
     public interface IHealthProfileService
     {
         HealthMetrics CalculateMetrics(int age, string gender, double heightCm, double weightKg, string activityLevel, string goal);
-        Task<HealthProfileResult> SaveProfileAsync(int userId, int age, string gender, double heightCm, double weightKg, string activityLevel, string goal);
+        Task<HealthProfileResult> SaveProfileAsync(int userId, int age, string gender, double heightCm, double weightKg, string activityLevel, string goal, string? allergies = null, string? favoriteFoods = null);
         Task<HealthProfileDto?> GetLatestProfileAsync(int userId);
         Task<List<HealthProfileDto>> GetProfileHistoryAsync(int userId);
     }

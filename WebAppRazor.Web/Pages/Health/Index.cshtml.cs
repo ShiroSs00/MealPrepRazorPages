@@ -35,6 +35,8 @@ namespace WebAppRazor.Web.Pages.Health
             public double Weight { get; set; } = 65;
             public string ActivityLevel { get; set; } = "ModeratelyActive";
             public string Goal { get; set; } = "Maintain";
+            public string? Allergies { get; set; }
+            public string? FavoriteFoods { get; set; }
         }
 
         public async Task OnGetAsync()
@@ -51,6 +53,8 @@ namespace WebAppRazor.Web.Pages.Health
                 Input.Weight = LatestProfile.Weight;
                 Input.ActivityLevel = LatestProfile.ActivityLevel;
                 Input.Goal = LatestProfile.Goal;
+                Input.Allergies = LatestProfile.Allergies;
+                Input.FavoriteFoods = LatestProfile.FavoriteFoods;
 
                 Metrics = _healthProfileService.CalculateMetrics(
                     LatestProfile.Age, LatestProfile.Gender, LatestProfile.Height,
@@ -64,7 +68,8 @@ namespace WebAppRazor.Web.Pages.Health
 
             var result = await _healthProfileService.SaveProfileAsync(
                 userId, Input.Age, Input.Gender, Input.Height,
-                Input.Weight, Input.ActivityLevel, Input.Goal);
+                Input.Weight, Input.ActivityLevel, Input.Goal,
+                Input.Allergies, Input.FavoriteFoods);
 
             if (result.Success)
             {

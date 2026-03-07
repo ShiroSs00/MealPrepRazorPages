@@ -35,9 +35,11 @@ namespace WebAppRazor.BLL.Services
             var profile = await _healthProfileRepository.GetLatestByUserIdAsync(userId);
             string? goal = profile?.Goal;
             string? activityLevel = profile?.ActivityLevel;
+            string? allergies = profile?.Allergies;
+            string? favoriteFoods = profile?.FavoriteFoods;
 
             // Try OpenAI ChatGPT first
-            var aiResult = await _aiService.GenerateMenuWithAIAsync(targetCalories, isPremium, goal, activityLevel);
+            var aiResult = await _aiService.GenerateMenuWithAIAsync(targetCalories, isPremium, goal, activityLevel, allergies, favoriteFoods);
 
             if (aiResult.Success && aiResult.MealItems.Count > 0)
             {

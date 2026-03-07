@@ -42,6 +42,12 @@ namespace WebAppRazor.DAL.Models
         // Daily calorie target based on goal
         public double DailyCalorieTarget { get; set; }
 
+        [StringLength(200)]
+        public string? Allergies { get; set; }
+
+        [StringLength(200)]
+        public string? FavoriteFoods { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

@@ -2,7 +2,7 @@ namespace WebAppRazor.BLL.Services
 {
     public interface IAIService
     {
-        Task<AIMenuResult> GenerateMenuWithAIAsync(double targetCalories, bool isPremium, string? goal = null, string? activityLevel = null);
+        Task<AIMenuResult> GenerateMenuWithAIAsync(double targetCalories, bool isPremium, string? goal = null, string? activityLevel = null, string? allergies = null, string? favoriteFoods = null);
     }
 
     public class AIMenuResult
