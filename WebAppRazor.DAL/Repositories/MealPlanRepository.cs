@@ -72,5 +72,10 @@ namespace WebAppRazor.DAL.Repositories
                 return false;
             }
         }
+
+        public async Task<MealItem?> GetMealItemByIdAsync(int id)
+        {
+            return await _context.MealItems.FindAsync(id);
+        }
     }
 }

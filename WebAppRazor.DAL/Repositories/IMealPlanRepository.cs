@@ -10,5 +10,6 @@ namespace WebAppRazor.DAL.Repositories
         Task<MealPlan?> GetLatestByUserIdAsync(int userId);
         Task<bool> CreateAsync(MealPlan plan);
         Task<bool> DeleteAsync(int id);
+        Task<MealItem?> GetMealItemByIdAsync(int id);
     }
 }

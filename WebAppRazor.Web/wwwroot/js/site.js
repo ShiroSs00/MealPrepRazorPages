@@ -1,25 +1,42 @@
 // SignalR Connection
-if (window.userId) {
-    const connection = new signalR.HubConnectionBuilder()
+function startSignalR() {
+    if (!window.userId) {
+        console.warn("SignalR: userId is not set. Connection aborted.");
+        return;
+    }
+
+    if (window.connection && window.connection.state !== signalR.HubConnectionState.Disconnected) {
+        return;
+    }
+
+    window.connection = new signalR.HubConnectionBuilder()
         .withUrl("/notificationHub")
         .withAutomaticReconnect()
         .build();
 
-    connection.on("ReceiveNotification", (title, message, type) => {
+    window.connection.on("ReceiveNotification", (title, message, type) => {
         showNotification(title, message, type);
     });
 
-    connection.on("UpdateUnreadCount", (count) => {
+    window.connection.on("UpdateUnreadCount", (count) => {
         updateNotificationBadge(count);
     });
 
-    connection.start()
+    window.connection.start()
         .then(() => {
-            console.log("SignalR Connected");
-            connection.invoke("JoinUserGroup", window.userId);
+            console.log("SignalR Connected for user: " + window.userId);
+            window.connection.invoke("JoinUserGroup", window.userId);
         })
-        .catch(err => console.error(err.toString()));
+        .catch(err => {
+            console.error("SignalR Connection Error: ", err.toString());
+            setTimeout(startSignalR, 5000); // Retry after 5s
+        });
 }
+
+// Start connection on page load
+$(document).ready(function() {
+    startSignalR();
+});
 
 function showNotification(title, message, type) {
     // Create notification element

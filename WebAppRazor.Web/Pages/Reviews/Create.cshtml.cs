@@ -58,6 +58,12 @@ namespace WebAppRazor.Web.Pages.Reviews
                 await NotificationHub.SendNotificationToUser(_hubContext, userId,
                     "Đánh giá thành công!", $"+{result.PointsEarned} điểm!", "System");
 
+                // Real-time SignalR broadcast for other users
+                if (result.Review != null)
+                {
+                    await NotificationHub.BroadcastReview(_hubContext, MealItemId, result.Review);
+                }
+
                 return RedirectToPage("/Reviews/Index");
             }
 

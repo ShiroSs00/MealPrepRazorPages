@@ -11,6 +11,96 @@
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        // Use existing connection if available, otherwise connection will be managed by site.js
+        // Wait for connection to be established
+        let retryCount = 0;
+        const checkConnection = setInterval(() => {
+            if (typeof signalR !== 'undefined' && window.connection) {
+                if (window.connection.state === signalR.HubConnectionState.Connected) {
+                    clearInterval(checkConnection);
+                    setupReviewListener();
+                } else if (window.connection.state === signalR.HubConnectionState.Disconnected) {
+                    console.log("SignalR Connection is disconnected. Starting manually...");
+                    if (typeof startSignalR === 'function') startSignalR();
+                } else {
+                    console.log("SignalR Connection state: ", window.connection.state);
+                }
+            } else {
+                console.log("SignalR not loaded yet...");
+            }
+            
+            retryCount++;
+            if (retryCount > 20) { // Timeout after 10s
+                clearInterval(checkConnection);
+                console.error("SignalR Connection timeout.");
+            }
+        }, 500);
+
+        function setupReviewListener() {
+            console.log("Setting up SignalR review listener...");
+            window.connection.on("ReceiveNewGlobalReview", (review) => {
+                console.log("Received new review via SignalR:", review);
+                const list = document.getElementById('communityReviewsList');
+                if (!list) return;
+
+                // Hide "No reviews" message if it exists
+                const noReviews = document.getElementById('noCommunityReviews');
+                if (noReviews) noReviews.style.display = 'none';
+
+                // Create HTML for new review
+                const div = document.createElement('div');
+                div.className = 'col-md-6 animate__animated animate__fadeInDown';
+                
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    stars += `<i class="fas fa-star ${i <= review.rating ? 'text-warning' : 'text-muted'}"></i>`;
+                }
+
+                div.innerHTML = `
+                    <div class="review-card border-success border-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="badge bg-danger mb-2">MỚI!</span>
+                                <h6 class="fw-bold mb-0">${review.mealItemName || review.MealItemName || 'Món ăn'}</h6>
+                                <small class="text-muted">bởi ${review.userFullName || review.UserFullName || 'Ẩn danh'}</small>
+                            </div>
+                            <div class="stars">${stars}</div>
+                        </div>
+                        ${(review.comment || review.Comment) ? `<p class="text-muted small mt-2 mb-1">${review.comment || review.Comment}</p>` : ''}
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="text-muted">${formatDate(review.createdAt || review.CreatedAt)}</small>
+                            <span class="badge bg-light text-success">+${review.pointsEarned || review.PointsEarned || 0}đ</span>
+                        </div>
+                    </div>
+                `;
+
+                // Add to top of list
+                list.insertBefore(div, list.firstChild);
+                
+                // Show a toast as well
+                if (typeof showNotification === 'function') {
+                    showNotification("Đánh giá mới!", `${review.userFullName} vừa đánh giá món ${review.mealItemName}`, "Promotion");
+                }
+
+                // Remove last item if too many
+                if (list.children.length > 20) {
+                    list.removeChild(list.lastChild);
+                }
+            });
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleString('vi-VN', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit' 
+            });
+        }
+    </script>
+}
+
 <!-- My Reviews -->
 <div class="card mb-4">
     <div class="card-header-custom">
@@ -57,14 +147,14 @@
         <h5 class="mb-0"><i class="fas fa-users me-2"></i>Đánh giá cộng đồng</h5>
     </div>
     <div class="card-body p-4">
-        @if (Model.RecentReviews.Count == 0)
-        {
-            <p class="text-muted text-center py-3">Chưa có đánh giá nào từ cộng đồng.</p>
-        }
-        else
-        {
-            <div class="row g-3">
-                @foreach (var review in Model.RecentReviews)
+        <div id="communityReviewsList" class="row g-3">
+            @if (Model.RecentReviews.Count == 0)
+            {
+                <div id="noCommunityReviews" class="col-12">
+                    <p class="text-muted text-center py-3">Chưa có đánh giá nào từ cộng đồng.</p>
+                </div>
+            }
+            @foreach (var review in Model.RecentReviews)
                 {
                     <div class="col-md-6">
                         <div class="review-card">
@@ -89,6 +179,5 @@
                     </div>
                 }
             </div>
-        }
     </div>
 </div>

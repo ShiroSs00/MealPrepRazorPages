@@ -7,6 +7,7 @@ namespace WebAppRazor.BLL.Services
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
         public int PointsEarned { get; set; }
+        public MealReviewDto? Review { get; set; }
     }
 
     public interface IMealReviewService

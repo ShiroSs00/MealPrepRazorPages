@@ -8,16 +8,27 @@ namespace WebAppRazor.BLL.Services
     {
         private readonly IMealReviewRepository _reviewRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IMealPlanRepository _mealPlanRepository;
 
-        public MealReviewService(IMealReviewRepository reviewRepository, IUserRepository userRepository)
+        public MealReviewService(
+            IMealReviewRepository reviewRepository,
+            IUserRepository userRepository,
+            IMealPlanRepository mealPlanRepository)
         {
             _reviewRepository = reviewRepository;
             _userRepository = userRepository;
+            _mealPlanRepository = mealPlanRepository;
         }
 
         public async Task<ReviewResult> SubmitReviewAsync(int userId, int mealItemId, int rating, string comment)
         {
             int points = rating >= 4 ? 15 : 10; // Bonus points for high ratings
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return new ReviewResult { Success = false, ErrorMessage = "Người dùng không tồn tại." };
+            }
 
             var review = new MealReview
             {
@@ -34,19 +45,28 @@ namespace WebAppRazor.BLL.Services
             if (success)
             {
                 // Update user review points
-                var user = await _userRepository.GetByIdAsync(userId);
-                if (user != null)
-                {
-                    user.ReviewPoints += points;
-                    await _userRepository.UpdateAsync(user);
-                }
+                user.ReviewPoints += points;
+                await _userRepository.UpdateAsync(user);
             }
+
+            // Populate names for SignalR DTO if success
+            MealReviewDto? reviewDto = null;
+            if (success)
+             {
+                 reviewDto = MapToDto(review);
+                 reviewDto.UserFullName = user.FullName;
+                 
+                 // Get MealItem name
+                 var mealItem = await _mealPlanRepository.GetMealItemByIdAsync(mealItemId);
+                 reviewDto.MealItemName = mealItem?.Name;
+             }
 
             return new ReviewResult
             {
                 Success = success,
                 ErrorMessage = success ? null : "Không thể gửi đánh giá. Vui lòng thử lại.",
-                PointsEarned = success ? points : 0
+                PointsEarned = success ? points : 0,
+                Review = reviewDto
             };
         }
 
