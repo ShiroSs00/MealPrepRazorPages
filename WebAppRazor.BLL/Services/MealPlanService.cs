@@ -122,8 +122,8 @@ namespace WebAppRazor.BLL.Services
                 Protein = Math.Round(calories * data.proteinRatio / 4, 1), // 4 cal per gram protein
                 Carbs = Math.Round(calories * data.carbRatio / 4, 1), // 4 cal per gram carbs
                 Fat = Math.Round(calories * data.fatRatio / 9, 1), // 9 cal per gram fat
-                Ingredients = isPremium ? data.ingredients : string.Empty,
-                CookingInstructions = isPremium ? data.instructions : string.Empty
+                Ingredients = data.ingredients,
+                CookingInstructions = data.instructions
             };
         }
 

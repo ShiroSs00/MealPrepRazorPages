@@ -41,30 +41,39 @@ namespace WebAppRazor.Web.Pages.Menu
         public async Task<IActionResult> OnPostAsync()
         {
             var userId = GetUserId();
-            var allMeals = _mealPlanService.GetAvailableMeals();
+            LatestProfile = await _healthProfileService.GetLatestProfileAsync(userId);
+            double targetCalories = LatestProfile?.DailyCalorieTarget ?? 2000;
+
             var selectedItems = new List<MealItemDto>();
             
-            void AddSelected(string type, string name) {
-                var meal = allMeals.FirstOrDefault(m => m.Name == name && m.MealType == type);
-                if (meal != null) {
+            void AddSelected(string type, string name, double percentage) {
+                (string name, string desc, double proteinRatio, double carbRatio, double fatRatio, string ingredients, string instructions) data = default;
+                
+                if (type == "Breakfast") data = MealLibrary.BreakfastOptions.FirstOrDefault(x => x.name == name);
+                else if (type == "Lunch") data = MealLibrary.LunchOptions.FirstOrDefault(x => x.name == name);
+                else if (type == "Dinner") data = MealLibrary.DinnerOptions.FirstOrDefault(x => x.name == name);
+                else if (type == "Snack") data = MealLibrary.SnackOptions.FirstOrDefault(x => x.name == name);
+
+                if (data.name != null) {
+                    double cal = targetCalories * percentage;
                     selectedItems.Add(new MealItemDto {
                         MealType = type,
-                        Name = meal.Name,
-                        Description = meal.Description,
-                        Calories = 500, // In real app, calculate based on target
-                        Protein = 25,
-                        Carbs = 60,
-                        Fat = 15,
-                        Ingredients = meal.Ingredients,
-                        CookingInstructions = meal.CookingInstructions
+                        Name = data.name,
+                        Description = data.desc,
+                        Calories = Math.Round(cal, 0),
+                        Protein = Math.Round(cal * data.proteinRatio / 4, 1),
+                        Carbs = Math.Round(cal * data.carbRatio / 4, 1),
+                        Fat = Math.Round(cal * data.fatRatio / 9, 1),
+                        Ingredients = data.ingredients,
+                        CookingInstructions = data.instructions
                     });
                 }
             }
 
-            AddSelected("Breakfast", SelectedBreakfastName);
-            AddSelected("Lunch", SelectedLunchName);
-            AddSelected("Dinner", SelectedDinnerName);
-            AddSelected("Snack", SelectedSnackName);
+            AddSelected("Breakfast", SelectedBreakfastName, 0.25);
+            AddSelected("Lunch", SelectedLunchName, 0.35);
+            AddSelected("Dinner", SelectedDinnerName, 0.30);
+            AddSelected("Snack", SelectedSnackName, 0.10);
 
             if (selectedItems.Count > 0)
             {

@@ -34,7 +34,7 @@ function startSignalR() {
 }
 
 // Start connection on page load
-$(document).ready(function() {
+$(document).ready(function () {
     startSignalR();
 });
 
@@ -45,7 +45,7 @@ function showNotification(title, message, type) {
     toast.role = 'alert';
     toast.ariaLive = 'assertive';
     toast.ariaAtomic = 'true';
-    
+
     toast.innerHTML = `
         <div class="d-flex">
             <div class="toast-body">
@@ -58,7 +58,7 @@ function showNotification(title, message, type) {
 
     const container = getToastContainer();
     container.appendChild(toast);
-    
+
     const bsToast = new bootstrap.Toast(toast, { delay: 5000 });
     bsToast.show();
 }
@@ -79,6 +79,7 @@ function getToastContainer() {
         container = document.createElement('div');
         container.id = 'toast-container';
         container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        container.style.zIndex = '9999';
         document.body.appendChild(container);
     }
     return container;

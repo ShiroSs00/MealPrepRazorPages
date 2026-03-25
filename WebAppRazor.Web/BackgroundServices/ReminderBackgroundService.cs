@@ -37,10 +37,12 @@ namespace WebAppRazor.Web.BackgroundServices
                     _logger.LogError(ex, "Error processing reminders.");
                 }
 
-                // Kiểm tra mỗi 1 phút
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                // Kiểm tra mỗi 10 giây để đảm bảo thông báo xuất hiện chính xác đúng giờ
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
         }
+
+        private readonly Dictionary<int, DateTime> _localLastTriggered = new();
 
         private async Task ProcessRemindersAsync()
         {
@@ -56,6 +58,12 @@ namespace WebAppRazor.Web.BackgroundServices
 
             foreach (var schedule in activeSchedules)
             {
+                // Local memory deduplication block consecutive rapid-fires causing multi-toasts
+                if (_localLastTriggered.TryGetValue(schedule.Id, out var lastLocal))
+                {
+                    if ((now - lastLocal).TotalMinutes < 2) continue;
+                }
+
                 // Kiểm tra ngày hợp lệ
                 if (schedule.StartDate > today) continue;
                 if (schedule.EndDate.HasValue && schedule.EndDate.Value < today) continue;
@@ -63,13 +71,16 @@ namespace WebAppRazor.Web.BackgroundServices
                 // Kiểm tra chế độ lặp
                 if (!ShouldTriggerToday(schedule.RepeatMode, now.DayOfWeek)) continue;
 
-                // Kiểm tra đã đến giờ chưa (trong khoảng ±1 phút)
-                var diff = Math.Abs((currentTime - schedule.ReminderTime).TotalMinutes);
-                if (diff > 1) continue;
+                // Kiểm tra đã đến giờ chưa (từ đúng thời điểm đó đến dưới 1 phút sau)
+                var diffMinutes = (currentTime - schedule.ReminderTime).TotalMinutes;
+                if (diffMinutes < 0 || diffMinutes >= 1) continue;
 
-                // Tránh gửi trùng trong cùng 1 phút
+                // Tránh gửi trùng trong cùng 1 phút theo dữ liệu gốc DB
                 if (schedule.LastTriggeredAt.HasValue &&
                     (now - schedule.LastTriggeredAt.Value).TotalMinutes < 2) continue;
+
+                // Set local cache memory immediately to prevent polling overlapping
+                _localLastTriggered[schedule.Id] = now;
 
                 // Gửi thông báo
                 await TriggerReminderAsync(notificationService, schedule);
