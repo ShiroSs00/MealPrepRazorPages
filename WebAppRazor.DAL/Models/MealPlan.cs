@@ -61,6 +61,9 @@ namespace WebAppRazor.DAL.Models
         [StringLength(2000)]
         public string Ingredients { get; set; } = string.Empty;
 
+        // Track completion status
+        public bool IsCompleted { get; set; } = false;
+
         public ICollection<MealReview> Reviews { get; set; } = new List<MealReview>();
     }
 }

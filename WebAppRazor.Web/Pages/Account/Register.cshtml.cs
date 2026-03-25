@@ -75,28 +75,8 @@ namespace WebAppRazor.Web.Pages.Account
                 return Page();
             }
 
-            // Automatic login after registration
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, result.UserId.ToString()),
-                new Claim(ClaimTypes.Name, result.Username),
-                new Claim("FullName", result.FullName)
-            };
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
-            };
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);
-
-            TempData["SuccessMessage"] = "Đăng ký thành công! Chào mừng bạn đến với NutriFood.";
-             return RedirectToPage("/Onboarding");
+            TempData["SuccessMessage"] = "Đăng ký thành công! Vui lòng đăng nhập bằng tài khoản vừa tạo.";
+            return RedirectToPage("/Account/Login");
          }
     }
 }

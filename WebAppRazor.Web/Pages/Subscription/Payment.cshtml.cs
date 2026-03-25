@@ -102,8 +102,7 @@ namespace WebAppRazor.Web.Pages.Subscription
             }
 
             TempData["SubscriptionMessage"] =
-                $"Thanh toán thành công! Gói {PlanTypeDisplay} sẽ hết hạn ngày {result.ExpiresAt?.ToString("dd/MM/yyyy")}.";
-
+                $"Thanh toán thành công! {PlanTypeDisplay} sẽ hết hạn ngày {result.ExpiresAt?.ToString("dd/MM/yyyy")}.";
             return RedirectToPage("/Subscription/Index");
         }
 

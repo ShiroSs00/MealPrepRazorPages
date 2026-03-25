@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebAppRazor.BLL.Interfaces;
 using WebAppRazor.BLL.Services;
 using WebAppRazor.DAL.Data;
 using WebAppRazor.DAL.Repositories;
@@ -35,6 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IReminderScheduleService, ReminderScheduleService>();
+        services.AddScoped<IDashboardService, DashboardService>();
 
         return services;
     }

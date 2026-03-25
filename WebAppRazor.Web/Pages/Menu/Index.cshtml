@@ -36,6 +36,22 @@
         Bạn cần <a asp-page="/Health/Index" class="alert-link">cập nhật chỉ số sức khỏe</a> trước khi tạo thực đơn.
     </div>
 }
+@if (Model.LatestProfile != null)
+{
+    <div class="card mb-4">
+        <div class="card-body text-center p-4">
+            <p class="mb-3">Mục tiêu calo hàng ngày: <strong class="text-success fs-4">@Model.LatestProfile.DailyCalorieTarget kcal</strong></p>
+            <form method="post" asp-page-handler="Generate" class="d-inline-block me-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-magic me-2"></i>Tạo nhanh (Ngẫu nhiên)
+                </button>
+            </form>
+            <a asp-page="/Menu/Create" class="btn btn-outline-success btn-lg">
+                <i class="fas fa-plus me-2"></i>Tự tạo thực đơn riêng
+            </a>
+        </div>
+    </div>
+}
 
 <!-- Edit Meal Modal -->
 <div class="modal fade" id="editMealModal" tabindex="-1" aria-labelledby="editMealModalLabel" aria-hidden="true">
@@ -94,34 +110,24 @@
 
 @section Scripts {
     <script>
-        function openEditModal(id, name, desc, cal, protein, carbs, fat, ingredients, instructions) {
-            document.getElementById('editMealId').value = id;
-            document.getElementById('editMealName').value = name;
-            document.getElementById('editMealDesc').value = desc;
-            document.getElementById('editMealCal').value = cal;
-            document.getElementById('editMealProtein').value = protein;
-            document.getElementById('editMealCarbs').value = carbs;
-            document.getElementById('editMealFat').value = fat;
-            document.getElementById('editMealIngredients').value = ingredients;
-            document.getElementById('editMealInstructions').value = instructions;
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            var editMealModal = document.getElementById('editMealModal');
+            if (editMealModal) {
+                editMealModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    document.getElementById('editMealId').value = button.getAttribute('data-id');
+                    document.getElementById('editMealName').value = button.getAttribute('data-name');
+                    document.getElementById('editMealDesc').value = button.getAttribute('data-desc');
+                    document.getElementById('editMealCal').value = button.getAttribute('data-cal');
+                    document.getElementById('editMealProtein').value = button.getAttribute('data-protein');
+                    document.getElementById('editMealCarbs').value = button.getAttribute('data-carbs');
+                    document.getElementById('editMealFat').value = button.getAttribute('data-fat');
+                    document.getElementById('editMealIngredients').value = button.getAttribute('data-ingredients');
+                    document.getElementById('editMealInstructions').value = button.getAttribute('data-instructions');
+                });
+            }
+        });
     </script>
-}
-else
-{
-    <div class="card mb-4">
-        <div class="card-body text-center p-4">
-            <p class="mb-3">Mục tiêu calo hàng ngày: <strong class="text-success fs-4">@Model.LatestProfile.DailyCalorieTarget kcal</strong></p>
-            <form method="post" asp-page-handler="Generate" class="d-inline-block me-2">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-magic me-2"></i>Tạo nhanh (Ngẫu nhiên)
-                </button>
-            </form>
-            <a asp-page="/Menu/Create" class="btn btn-outline-success btn-lg">
-                <i class="fas fa-plus me-2"></i>Tự tạo thực đơn riêng
-            </a>
-        </div>
-    </div>
 }
 
 @if (Model.MealPlans.Count > 0)
@@ -206,7 +212,15 @@ else
                                         <i class="fas fa-star me-1"></i> Đánh giá
                                     </a>
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editMealModal" 
-                                            onclick="openEditModal('@item.Id', '@item.Name', '@item.Description', '@item.Calories', '@item.Protein', '@item.Carbs', '@item.Fat', '@item.Ingredients', '@item.CookingInstructions')">
+                                            data-id="@item.Id"
+                                            data-name="@item.Name"
+                                            data-desc="@item.Description"
+                                            data-cal="@item.Calories"
+                                            data-protein="@item.Protein"
+                                            data-carbs="@item.Carbs"
+                                            data-fat="@item.Fat"
+                                            data-ingredients="@item.Ingredients"
+                                            data-instructions="@item.CookingInstructions">
                                         <i class="fas fa-edit me-1"></i> Sửa
                                     </button>
                                 </div>
