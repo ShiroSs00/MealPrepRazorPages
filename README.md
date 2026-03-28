@@ -1,65 +1,36 @@
-#  MealPrepService
+# NutriFood App 🥗
 
-Ứng dụng hỗ trợ người dùng quản lý sức khỏe và thực đơn cá nhân hóa bằng AI.
+NutriFood là một ứng dụng web chăm sóc sức khỏe và dinh dưỡng toàn diện được xây dựng bằng **ASP.NET Core Razor Pages** áp dụng kiến trúc 3 tầng chuẩn (DAL, BLL, UI). Ứng dụng cung cấp các công cụ thông minh để theo dõi Calo, tư vấn dinh dưỡng bằng Trí tuệ nhân tạo (AI), hệ thống đánh giá thời gian thực và quản trị chuyên nghiệp.
 
----
+## 🔥 Tổng hợp Hệ thống Tính năng
 
-##  Flows & Chức năng chính
+### 1. Phân quyền và Hồ sơ Sức khỏe
+*   **Authentication & Authorization:** Hệ thống Đăng nhập / Đăng ký sử dụng Claims-based authentication. Tự động cấp quyền `Admin` cho các tài khoản đăng ký chứa từ khoá "admin".
+*   **Hồ sơ Cá nhân (Profile):** Người dùng nhập chỉ số cơ thể (Cân nặng, Chiều cao, Giới tính, Tuổi) và Mục tiêu (Giảm cân, Tăng cơ, Duy trì).
+*   **Tính toán Khoa học:** Hệ thống tự động phân tích và cấp các chỉ số **BMI** (Thể trạng) và **TDEE** (Lượng calo cần thiết mỗi ngày).
 
-### Flow 1: Đăng ký + Tính toán chỉ số
-- Người dùng đăng ký, nhập thông tin cá nhân.
-- Hệ thống tự động tính toán các chỉ số sức khỏe: **BMI, BMR, TDEE,…**
-- **Mở rộng**:
-  - Xác thực email/số điện thoại.
-  - Onboarding UI (giải thích cách dùng app).
-  - Lưu lịch sử chỉ số để theo dõi sự thay đổi theo thời gian.
+### 2. Bảng điều khiển (User Dashboard)
+*   **Theo dõi Năng lượng (Daily Log):** Nhập lượng calo đã ăn mỗi bữa.
+*   **Biểu đồ Thống kê (Chart.js):** Giám sát tiến độ nạp Calo 7 ngày gần nhất so sánh với vạch đích TDEE.
+*   **Khám phá Thực đơn:** Xem các thực đơn thịnh hành được đề xuất bởi Admin.
 
----
+### 3. Tương tác Thời gian thực (Real-time Reviews & SignalR)
+*   **Đánh giá món ăn (Rating & Comment):** Khi nhấn "Đánh giá món" từ Dashboard, bạn sẽ tham gia vào phòng thảo luận Real-time.
+*   **Cập nhật Live:** Các bình luận mới, hay các thao tác Sửa/Xóa (CRUD) của bạn và người khác sẽ nhảy ngay trên màn hình mà không cần tự F5 tải lại trang.
+*   **Điểm thưởng:** Mỗi đánh giá chất lượng mang về cho bạn `+10 điểm` vào quỹ đổi quà.
 
-### Flow 2: AI Gen Menu + Thanh toán nâng cấp
-- AI tự động tạo thực đơn cá nhân hóa dựa trên chỉ số từ Flow 1.
-- **Mở rộng**:
-  - Tùy chỉnh menu (loại bỏ món dị ứng, thêm món yêu thích).
-  - Tích hợp gợi ý mua nguyên liệu hoặc liên kết với siêu thị/đối tác giao hàng.
-  - Subscription (gói tuần/tháng/năm) thay vì chỉ one-time payment.
-  - SignalR hiển thị real-time thông báo (menu mới, khuyến mãi).
+### 4. Hệ thống AI Chat & Gen Menu (Groq API)
+*   **AI Menu:** Tính năng độc quyền cho tài khoản **VIP & Admin**. Trò chuyện trực tiếp với NutriBot để tham khảo dinh dưỡng.
+*   **Tạo Menu AI:** Chỉ 1 click, AI đọc các thông số sức khoẻ (BMI, TDEE) của riêng bạn và generate một thực đơn cho ngày hôm đó.
 
-#### Gói nâng cấp
-- **Miễn phí**: chỉ gen ra menu từ chỉ số người dùng.
-- **Basic Premium**: thêm tùy chỉnh menu + thông tin dinh dưỡng chi tiết + cách nấu ăn cho từng món.
+### 5. Thương mại hóa (Payment & Rewards)
+*   **Thanh toán Online (Mock):** Tính năng nạp gói VIP hoặc mua gói Điểm thưởng. Quy trình checkout giả lập mượt mà.
+*   **Đổi quà (Rewards Store):** Sử dụng Điểm thưởng tích luỹ được để quy đổi lấy các Coupon / Quà tặng sức khoẻ do Admin phát hành.
 
----
-
-### Flow 3: Meal Review
-- Người dùng đánh giá món ăn, feedback cho AI để cải thiện menu.
-- **Mở rộng**:
-  - Gamification: điểm thưởng khi review, ranking món ăn.
-  - Social feature: chia sẻ thực đơn hoặc review với cộng đồng.
-  - AI học từ review để điều chỉnh menu cho lần sau.
-
----
-
-### Flow 4: Progress Tracking
-- Theo dõi cân nặng, chỉ số sức khỏe theo thời gian.
-- **Mở rộng**:
-  - Dashboard trực quan (chart).
-  - SignalR cập nhật real-time khi có dữ liệu mới.
-
----
-
-### Flow 5: Notification & Reminder
-- Nhắc giờ ăn, nhắc mua nguyên liệu, nhắc review sau khi dùng món.
-- SignalR: áp dụng mạnh nhất ở flow này để push notification real-time.
-
----
-
-##  Công nghệ đề xuất
-- **Backend**: ASP.NET Core + SignalR
-- **Frontend**: React / Angular
-- **Database**: SQL Server / PostgreSQL
-- **AI Menu Generation**: tích hợp mô hình AI (ví dụ: OpenAI API)
-- **Authentication**: JWT + Email/SMS OTP
-- **Deployment**: Docker + Kubernetes
-
----
+### 6. Admin Dashboard 
+*   **Tổng quan:** Theo dõi biểu đồ số lượng Người dùng, Tổng thu nhập, Đơn đổi quà.
+*   **Quản lý (CRUD):** Các mô-đun quản lý chuyên sâu bao gồm:
+    *   **Thực đơn (Meals)**
+    *   **Quà tặng (Gifts)**
+    *   **Người dùng & Giao dịch (Users & Transactions)**
 
